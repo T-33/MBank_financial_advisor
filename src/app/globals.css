@@ -3,114 +3,121 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 222 50% 4%;
-    --foreground: 210 30% 92%;
-    --card: 220 48% 8%;
-    --card-foreground: 210 30% 92%;
-    --popover: 220 48% 8%;
-    --popover-foreground: 210 30% 92%;
-    --primary: 38 90% 60%;
-    --primary-foreground: 222 50% 5%;
-    --secondary: 220 40% 13%;
-    --secondary-foreground: 210 30% 85%;
-    --muted: 220 40% 11%;
-    --muted-foreground: 210 20% 45%;
-    --accent: 38 90% 60%;
-    --accent-foreground: 222 50% 5%;
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 40% 14%;
-    --input: 220 40% 10%;
-    --ring: 38 90% 60%;
-    --radius: 0.875rem;
-  }
-
   * {
-    @apply border-border;
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
 
   body {
-    background-color: #050C1B;
-    color: #D4E0EE;
+    background-color: #F2F2F2;
+    color: #111111;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 4px;
+  /* Hide scrollbar */
+  ::-webkit-scrollbar { width: 0; height: 0; }
+}
+
+@layer components {
+  /* White card surface */
+  .mbank-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.04);
+    padding: 16px;
   }
-  ::-webkit-scrollbar-track {
-    background: transparent;
+
+  /* Green circle icon container */
+  .mbank-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #009C4D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,156,77,0.22);
+    flex-shrink: 0;
   }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
+
+  /* Green rounded-square icon (service grid) */
+  .mbank-icon-sq {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #009C4D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,156,77,0.22);
+    flex-shrink: 0;
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.18);
+
+  /* Primary button */
+  .mbank-btn {
+    background: #009C4D;
+    color: #FFFFFF;
+    border-radius: 12px;
+    height: 48px;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,156,77,0.28);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    cursor: pointer;
+  }
+  .mbank-btn:active {
+    opacity: 0.88;
+    transform: scale(0.98);
+  }
+
+  /* List item divider (inset) */
+  .mbank-divider {
+    border-bottom: 1px solid #E8E8E8;
+  }
+
+  /* Status badges */
+  .badge-overdue  { background: rgba(229,62,62,0.1);  color: #E53E3E; }
+  .badge-soon     { background: rgba(250,191,0,0.13); color: #9A7200; }
+  .badge-upcoming { background: rgba(0,156,77,0.09);  color: #009C4D; }
+  .badge-paid     { background: rgba(0,156,77,0.09);  color: #009C4D; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 20px;
   }
 }
 
 @layer utilities {
-  /* Grain texture overlay */
-  .grain {
-    position: relative;
-  }
-  .grain::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-    background-size: 200px 200px;
-    opacity: 0.035;
-    pointer-events: none;
-    border-radius: inherit;
-  }
+  /* Animation helpers */
+  .animate-fade-up { animation: fadeUp 0.32s cubic-bezier(0.16,1,0.3,1) forwards; }
+  .animate-fade-in { animation: fadeIn 0.2s ease forwards; }
+  .anim-hidden { opacity: 0; }
 
-  /* Glass card */
-  .glass-card {
-    background: rgba(10, 22, 40, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.7);
-    backdrop-filter: blur(12px);
-  }
+  .delay-1 { animation-delay: 60ms; }
+  .delay-2 { animation-delay: 120ms; }
+  .delay-3 { animation-delay: 180ms; }
+  .delay-4 { animation-delay: 240ms; }
+  .delay-5 { animation-delay: 300ms; }
+  .delay-6 { animation-delay: 360ms; }
+}
 
-  .glass-card-elevated {
-    background: rgba(15, 30, 54, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.8);
-  }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-  /* Gold glow */
-  .gold-glow {
-    box-shadow: 0 0 20px rgba(245, 176, 64, 0.25), 0 0 6px rgba(245, 176, 64, 0.12);
-  }
-
-  /* Number display */
-  .num {
-    font-family: var(--font-display);
-  }
-
-  /* Status dot */
-  .status-overdue {
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
-  }
-  .status-due-soon {
-    box-shadow: 0 0 8px rgba(245, 176, 64, 0.5);
-  }
-
-  /* Stagger animation delays */
-  .delay-50  { animation-delay: 50ms; }
-  .delay-100 { animation-delay: 100ms; }
-  .delay-150 { animation-delay: 150ms; }
-  .delay-200 { animation-delay: 200ms; }
-  .delay-250 { animation-delay: 250ms; }
-  .delay-300 { animation-delay: 300ms; }
-  .delay-350 { animation-delay: 350ms; }
-  .delay-400 { animation-delay: 400ms; }
-
-  .opacity-0-init {
-    opacity: 0;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
