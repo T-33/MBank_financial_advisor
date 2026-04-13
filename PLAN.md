@@ -1,112 +1,151 @@
-# MBank Financial Assistant — 4-Day Hackathon Plan
+# MBank AI Financial Advisor — Updated Plan
 
-## 1. Competition Analysis
-
-**What similar apps do:**
-- **Kaspi (KZ):** Bill reminders, auto-payments, spending analytics — but closed ecosystem, KZ-only
-- **Revolut:** Smart spending categories, savings vaults, budget goals — but no CIS localization
-- **Sberbank/Tinkoff:** AI spending insights, bill detection from receipts — Russia-only
-- **Wallet by BudgetBakers:** Manual tracking, no bank integration
-
-**Your edge (MBank-specific angle):**
-- Deep integration with MBank features (mInvest, auto-payments)
-- Kyrgyz/Russian language-first
-- Local bills: Severelectro, Bishkekteploset, Gazprom KR, water utilities
-- Familiar UX for KG users
+> Last updated: 2026-04-13
+> Based on mentor critique from hackathon judge (Amir)
 
 ---
 
-## 2. Core Features (MVP — must demo these)
+## What We Got Wrong (The Debunk Summary)
 
-### Must Have
-| Feature | Why |
+The original plan built **PFM (Personal Finance Management) from 2015** — bill reminders, pie charts, savings progress bars. These are CRUD features, not AI. Judges will say: "Kaspi and Tinkoff already have this. Where's the AI?"
+
+**The root mistake:** Features 1–3 (reminders, goals, charts) presented as the product. They should be invisible infrastructure that powers the AI.
+
+**The one real differentiator:** The AI assistant — but it needs to be proactive, contextual, and have a personality system.
+
+---
+
+## Revised Strategy: AI-First, Everything Else Is Infrastructure
+
+> "Don't show me a weather radar. Just tell me if I need an umbrella."
+
+The app is not a dashboard with an AI chatbot bolted on.
+It is an **AI agent** that happens to have access to bills, goals, and transactions under the hood.
+
+### Design Principle
+This is **not a standalone app**. It is the MBank AI Advisor feature — incorporated into the MBank app. Design must match MBank's exact brand: `#009C4D` green, white cards, `#EDEDED` background, Inter font, bottom tab navigation. No dark themes, no custom palettes.
+
+---
+
+## The 20% That Delivers 80% of the Pitch (Pareto)
+
+### #1 — Tone of Voice Selector (Biggest Bang)
+**What it is:** On first open, the AI asks: *"How should I talk to you?"*
+- 👔 **Strict Banker** — only numbers, no small talk
+- 🤗 **Caring Friend** — warm, encouraging, celebrates wins
+- 💀 **Toxic Bro** — ruthlessly roasts your spending (user opted in, liability cleared)
+
+**Why it wins:** Viral. Users screenshot toxic roasts and post to Instagram/TikTok → free marketing for MBank. Judges remember it. It's a 2-hour implementation with outsized demo impact.
+
+### #2 — Cash Flow Forecasting (The Real AI)
+**What it is:** Proactive warning, not reactive graph.
+
+Instead of: *"You spent 35% on food this month"*
+AI says: *"Aizat, you have 5 days until salary. Your balance is 10,400 KGS. Severelectro (1,240) and internet (650) bill in 3 days. Based on your Friday pattern, you usually spend ~2,000 on dining. You'll run short by ~500 KGS. Want me to lock 2,000 KGS now so you don't accidentally spend it?"*
+
+**Why it wins:** This is actual AI behavior. Judges can see it's not a cron job.
+
+### #3 — Proactive Goal Funding (Not a Progress Bar)
+**What it is:** The AI finds money for goals instead of waiting for the user.
+
+*"You spent 1,800 less on transport this month vs last month. Transfer it to your Emergency Fund? That puts you 2 months ahead of schedule."* → One tap: Yes.
+
+**Why it wins:** Transforms a passive feature into an active agent. The bar moves without the user doing anything.
+
+### #4 — NLP Transaction Search (Wow Moment in Demo)
+**What it is:** Plain language search instead of filter dropdowns.
+
+User types: *"How much did I spend at restaurants last month?"*
+AI queries the mock data and responds: *"2,730 KGS across 3 transactions: Zia (1,800), Fatboy's (650), Coffee Boom (280)."*
+
+**Why it wins:** Live demo moment. Audience sees AI that feels like talking to a human, not clicking a filter.
+
+### #5 — AI Cross-Sell (Why MBank Cares = Why You Win)
+**What it is:** AI notices behavioral patterns and suggests relevant MBank products contextually — not as ads, as advice.
+
+*"You've bought plane tickets twice this month. MBank's premium card gives you free lounge access at Manas + air miles. That last trip would've been free. Want me to show you?"*
+
+**Why it wins:** This is the business model. Judges always ask "how does MBank make money from this?" Now you have the answer.
+
+---
+
+## What Becomes Infrastructure (Invisible, But Required)
+
+These still need to exist — they feed data to the AI:
+- Bill tracker (due dates, amounts, statuses)
+- Spending categories (auto-classified transactions)
+- Savings goals (target, saved, deadline)
+- Mock transaction history
+
+They should not be pitched as features. They are **the AI's memory**.
+
+---
+
+## Design Direction
+
+| Before | After |
 |---|---|
-| **Bill Reminder Dashboard** | Core problem — forgetting payments |
-| **Smart Spending Categories** | Auto-categorize transactions |
-| **Savings Goal Planner** | "Save for X by Y date" |
-| **MBank Feature Discovery** | Surface mInvest, auto-pay, cashback to users who don't know |
-| **AI Financial Assistant Chat** | Ask "Can I afford X?" or "Where did my money go?" |
+| Dark navy `#050C1B` | Light `#EDEDED` background |
+| Gold/amber accents | `#009C4D` MBank green |
+| Sidebar navigation | Bottom tab bar (5 tabs) |
+| Outfit + Playfair fonts | Inter only |
+| Desktop-first layout | Mobile-first 390px |
+| Standalone app feel | Part of MBank app feel |
 
-### Nice to Have (if time allows)
-- Monthly budget forecast
-- Anomaly detection ("You spent 3x more on food this month")
-
----
-
-## 3. Technology Choice
-
-**Stack recommendation for 4 days (speed over perfection):**
-
-```
-Frontend:  Next.js 14 (React) + Tailwind CSS + shadcn/ui
-AI:        Claude API (Anthropic)
-Charts:    Recharts or Chart.js
-Auth:      Mock auth (no time for real OAuth)
-Data:      JSON mock data (simulate MBank transactions)
-Deploy:    Vercel (free, instant deploy for demo)
-```
-
-**Why this stack:**
-- Next.js = fast to build, looks professional, easy demo
-- shadcn/ui = pre-built bank-style components, saves 1.5 days of UI work
-- Mock data = no backend needed, focus on the demo scenario
-- Claude API = powers the AI assistant chat
+**Reference:** The app should look like it was shipped by MBank's design team, not a hackathon team. Judges will notice.
 
 ---
 
-## 4. Design Scheme
+## Next Steps (Prioritized by Impact)
 
-**App structure — 5 screens to demo:**
+### Step 1 — Redesign to MBank Brand (Foundation) 🎨
+*Without this, everything else looks unprofessional at the pitch.*
+- [ ] Swap dark theme → light MBank theme (globals.css)
+- [ ] Replace sidebar → 5-tab bottom navigation
+- [ ] Fix fonts: Inter only, remove Outfit/Playfair
+- [ ] Update all page colors: green primary, white cards, `#EDEDED` bg
+- [ ] Mobile shell at 390px centered on desktop
 
-```
-/dashboard     — Overview: balance, upcoming bills, savings progress
-/bills         — Bill tracker with reminder status + pay button
-/savings       — Goal planner with timeline visualization
-/assistant     — AI chat: "Ask your MBank financial advisor"
-/discover      — MBank features the user hasn't activated yet
-```
+### Step 2 — Tone of Voice Selector (Highest ROI) 🎭
+*2 hours of work, maximum pitch memorability.*
+- [ ] Onboarding screen: 3 personality options with preview
+- [ ] Store selected tone in `localStorage`
+- [ ] Pass tone to Claude system prompt (3 different system prompt variants)
+- [ ] Show active persona indicator in assistant header
 
-**Design language:**
-- MBank brand colors: dark blue + white + orange accent
-- Mobile-first layout (it's a payment app concept)
-- Clean, minimal — not overwhelming
+### Step 3 — Upgrade the AI Chat to Be Proactive 🤖
+*The core pitch. Make the assistant feel like it knows the user.*
+- [ ] Rewrite system prompt to include full financial context (bills, patterns, balance)
+- [ ] Add cash flow forecast logic to system prompt context
+- [ ] Make opening message proactive: AI greets with a specific insight, not generic "how can I help?"
+- [ ] Add suggested prompts that trigger the best demo moments (cash flow, goal funding)
 
----
+### Step 4 — NLP Transaction Search (Demo Wow Moment) 🔍
+*One impressive live demo moment beats 10 slides.*
+- [ ] Add a search input to the transactions section
+- [ ] Route natural language queries through Claude API
+- [ ] Claude returns structured answer from mock transaction data
+- [ ] Works live in the demo: type "restaurants last month" → instant answer
 
-## 5. 4-Day Development Timeline
-
-### Day 1 — Foundation + Design
-- [ ] Set up Next.js project, Tailwind, shadcn/ui
-- [ ] Create mock transaction/bill data (JSON)
-- [ ] Build layout: sidebar nav + header
-- [ ] Dashboard page with balance card + bill summary
-
-### Day 2 — Core Features
-- [ ] Bills page: list, due dates, status badges, "Pay" mock action
-- [ ] Savings goals page: progress bars, deadline calculator
-- [ ] Spending breakdown: donut chart by category
-
-### Day 3 — AI Assistant
-- [ ] Integrate Claude API for chat
-- [ ] System prompt: give Claude context about user's mock financial data
-- [ ] Smart responses: bill reminders, savings advice, mInvest explanation
-- [ ] Feature discovery page (mInvest, auto-pay cards with "Activate" CTA)
-
-### Day 4 — Polish + Demo Prep
-- [ ] Mobile responsiveness
-- [ ] Demo scenario script (walk through a user story)
-- [ ] Deploy to Vercel
-- [ ] Presentation slides
+### Step 5 — Polish the Demo Scenario 🎬
+*Judges see a 3-minute demo. Make every second count.*
+- [ ] Define the exact demo flow: Aizat's story (overdue bill → cash flow warning → goal suggestion → product cross-sell)
+- [ ] Ensure every screen in the flow looks perfect
+- [ ] The AI should proactively surface insights in the demo, not wait to be asked
 
 ---
 
-## 6. Demo Scenario (for judges)
+## What to Cut (Don't Build These)
 
-> **"Meet Aizat. She earns 40,000 KGS/month. She forgot to pay electricity last month and got fined. She has no savings. She doesn't know MBank has mInvest."**
+- ❌ Heatmap / complex charts — replace with one AI insight sentence
+- ❌ Manual goal creation form (keep it, but don't demo it)
+- ❌ The discover page as a separate "feature" — fold it into AI suggestions
+- ❌ Generic pie chart on dashboard — AI says what it means instead
 
-1. Opens app -> sees **electricity bill due in 3 days** (red alert)
-2. Clicks bill -> one-tap pay (mock)
-3. Checks **spending** -> 35% on food (AI flags this as above average)
-4. Creates **savings goal**: "Emergency Fund — 50,000 KGS in 6 months"
-5. Asks **AI chat**: "Can I save more?" -> Claude analyzes mock data, suggests reducing dining out
-6. AI mentions **mInvest** -> she activates it from the app
+---
+
+## The Pitch Line (Memorize This)
+
+> "We built an AI agent that predicts when Aizat will run out of money before she does, finds savings she didn't know she had, and talks to her however she prefers — from strict banker to her most toxic friend. It increases MBank's DAU/MAU through daily engagement, and drives cross-sell through behavioral context."
+
+That's the difference between last place and first place.
