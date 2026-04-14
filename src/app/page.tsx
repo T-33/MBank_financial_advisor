@@ -66,7 +66,8 @@ function PhoneShell() {
     <div
       className="relative w-[390px] bg-[#F2F2F2] overflow-hidden flex flex-col"
       style={{
-        height: "844px",
+        height: "92dvh",
+        maxHeight: "844px",
         borderRadius: "44px",
         boxShadow: "0 32px 80px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.08)",
       }}

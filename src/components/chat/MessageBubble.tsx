@@ -8,6 +8,14 @@ import AutopilotJarCard from "./cards/AutopilotJarCard";
 
 type Props = { message: UIMessage };
 
+function normalizeAssistantText(text: string): string {
+  return text
+    .replace(/\*\*/g, "")
+    .replace(/^\s*[-*]\s+/gm, "• ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export default function MessageBubble({ message }: Props) {
   const isUser = message.role === "user";
 
@@ -31,12 +39,12 @@ export default function MessageBubble({ message }: Props) {
       {message.parts.map((part, i) => {
         // Plain text
         if (part.type === "text") {
-          const text = (part as { type: "text"; text: string }).text.trim();
+          const text = normalizeAssistantText((part as { type: "text"; text: string }).text);
           if (!text) return null;
           return (
             <div
               key={i}
-              className="bg-white border border-[#ECECEC] rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[85%] text-[14px] text-[#111111] leading-snug shadow-sm"
+              className="bg-white border border-[#ECECEC] rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[85%] text-[14px] text-[#111111] leading-snug whitespace-pre-line shadow-sm"
             >
               {text}
             </div>
