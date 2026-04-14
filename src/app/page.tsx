@@ -1,7 +1,13 @@
-// MBank Design Template — showcases the brand design system
-// Use this as a reference when building new screens
+"use client";
 
-export default function DesignTemplate() {
+// MBank Home screen — hackathon prototype.
+// Central bottom FAB opens the AI ChatOverlay (persona picker + slide-up).
+
+import { useState } from "react";
+import ChatOverlay from "@/components/chat/ChatOverlay";
+
+export default function Home() {
+  const [chatOpen, setChatOpen] = useState(false);
   return (
     // Outer shell — desktop centering
     <div className="min-h-screen bg-[#DCDCDC] flex items-center justify-center py-8">
@@ -258,23 +264,24 @@ export default function DesignTemplate() {
             <span className="text-[10px] text-[#8C8C8C]">Платежи</span>
           </button>
 
-          {/* QR FAB — center */}
-          <div className="flex flex-col items-center" style={{ marginTop: "-20px" }}>
+          {/* AI FAB — center. Opens the slide-up chat overlay. */}
+          <div className="flex flex-col items-center" style={{ marginTop: "-24px" }}>
             <button
-              className="w-[56px] h-[56px] rounded-[16px] flex items-center justify-center"
+              onClick={() => setChatOpen(true)}
+              aria-label="Открыть AI-ассистента"
+              className="w-[60px] h-[60px] rounded-full flex items-center justify-center active:scale-95 transition-transform"
               style={{
-                background: "#FABF00",
-                boxShadow: "0 4px 16px rgba(250,191,0,0.4)",
+                background: "linear-gradient(135deg, #00B85A 0%, #008D3F 100%)",
+                boxShadow: "0 8px 24px rgba(0,156,77,0.45), 0 0 0 4px #ffffff",
               }}
             >
-              <svg width="26" height="26" viewBox="0 0 26 26" fill="white">
-                <rect x="3" y="3" width="8" height="8" rx="1.5"/>
-                <rect x="15" y="3" width="8" height="8" rx="1.5"/>
-                <rect x="3" y="15" width="8" height="8" rx="1.5"/>
-                <rect x="15" y="15" width="4" height="4" rx="1"/>
-                <rect x="20" y="15" width="3" height="3" rx="0.8"/>
-                <rect x="15" y="20" width="3" height="3" rx="0.8"/>
-                <rect x="19" y="19" width="4" height="4" rx="1"/>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 2l1.9 5.6L19.5 9 14 11l-2 5.5L10 11 4.5 9l5.6-1.4L12 2z"
+                  fill="white"
+                />
+                <circle cx="19" cy="5" r="1.4" fill="white" opacity="0.9" />
+                <circle cx="5" cy="18" r="1.1" fill="white" opacity="0.8" />
               </svg>
             </button>
           </div>
@@ -301,6 +308,7 @@ export default function DesignTemplate() {
           </button>
         </div>
 
+        <ChatOverlay open={chatOpen} onClose={() => setChatOpen(false)} />
       </div>{/* end phone shell */}
     </div>
   );

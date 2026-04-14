@@ -11,9 +11,11 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
     "@radix-ui/react-slot": "^1.2.4",
+    "ai": "^6.0.159",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.0.1",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.8.0",
     "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",
