@@ -1,13 +1,24 @@
 "use client";
 
 // MBank Home screen — hackathon prototype.
+// All numbers and strings read from src/lib/mockData.ts.
 // Central bottom FAB opens the AI ChatOverlay (persona picker + slide-up).
 
 import { useState } from "react";
 import ChatOverlay from "@/components/chat/ChatOverlay";
+import { user, cards, transactions, upcomingBills, marchAnalysis } from "@/lib/mockData";
+import { formatSom, formatSomCompact, daysUntil } from "@/lib/format";
+import AutopilotWidget from "@/components/home/AutopilotWidget";
+
+// Derived values
+const primaryCard = cards[0];
+const daysToSalary = daysUntil(user.salary.nextPayISO);
+const billsTotal = upcomingBills.reduce((sum, b) => sum + b.amount, 0);
+const recentTxs = transactions.slice(0, 4);
 
 export default function Home() {
   const [chatOpen, setChatOpen] = useState(false);
+
   return (
     // Outer shell — desktop centering
     <div className="min-h-screen bg-[#DCDCDC] flex items-center justify-center py-8">
@@ -50,14 +61,39 @@ export default function Home() {
                   <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" strokeWidth="0" fill="#999"/>
                 </svg>
               </div>
-              <span className="text-[18px] font-bold text-[#111111]">Тимур <span className="text-[#009C4D]">›</span></span>
+              <span className="text-[18px] font-bold text-[#111111]">
+                {user.name} <span className="text-[#009C4D]">›</span>
+              </span>
             </div>
-            <div className="relative">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                <path d="M11 2a6 6 0 0 1 6 6v3l1.5 2.5H3.5L5 11V8a6 6 0 0 1 6-6Z" stroke="#111" strokeWidth="1.5"/>
-                <path d="M8.5 17.5a2.5 2.5 0 0 0 5 0" stroke="#111" strokeWidth="1.5"/>
-              </svg>
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#E53E3E] rounded-full text-white text-[9px] font-bold flex items-center justify-center">2</span>
+            <div className="flex items-center gap-2">
+              {/* QR chip */}
+              <button
+                aria-label="QR-код"
+                className="w-8 h-8 rounded-full flex items-center justify-center active:opacity-80 transition-opacity"
+                style={{ background: "#FABF00" }}
+              >
+                {/* QR icon */}
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <rect x="1" y="1" width="5" height="5" rx="0.8" stroke="white" strokeWidth="1.3"/>
+                  <rect x="8" y="1" width="5" height="5" rx="0.8" stroke="white" strokeWidth="1.3"/>
+                  <rect x="1" y="8" width="5" height="5" rx="0.8" stroke="white" strokeWidth="1.3"/>
+                  <rect x="2.5" y="2.5" width="2" height="2" fill="white"/>
+                  <rect x="9.5" y="2.5" width="2" height="2" fill="white"/>
+                  <rect x="2.5" y="9.5" width="2" height="2" fill="white"/>
+                  <rect x="8.5" y="8.5" width="1.4" height="1.4" fill="white"/>
+                  <rect x="10.5" y="8.5" width="1.4" height="1.4" fill="white"/>
+                  <rect x="8.5" y="10.5" width="1.4" height="1.4" fill="white"/>
+                  <rect x="10.5" y="10.5" width="1.4" height="1.4" fill="white"/>
+                </svg>
+              </button>
+              {/* Bell */}
+              <div className="relative">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M11 2a6 6 0 0 1 6 6v3l1.5 2.5H3.5L5 11V8a6 6 0 0 1 6-6Z" stroke="#111" strokeWidth="1.5"/>
+                  <path d="M8.5 17.5a2.5 2.5 0 0 0 5 0" stroke="#111" strokeWidth="1.5"/>
+                </svg>
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#E53E3E] rounded-full text-white text-[9px] font-bold flex items-center justify-center">2</span>
+              </div>
             </div>
           </div>
 
@@ -70,27 +106,34 @@ export default function Home() {
                 boxShadow: "0 4px 20px rgba(0,156,77,0.35)",
               }}
             >
-              <p className="text-white/70 text-[12px] font-medium mb-1">Основной счёт · ****4821</p>
+              <p className="text-white/70 text-[12px] font-medium mb-1">
+                {primaryCard.name} · ****{primaryCard.last4}
+              </p>
               <p className="text-white text-[28px] font-bold leading-tight tracking-tight">
-                38 450,00 <span className="text-[20px]">С</span>
+                {formatSom(primaryCard.balance)}
               </p>
               <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/20">
                 <div>
                   <p className="text-white/60 text-[11px]">Доход</p>
-                  <p className="text-white text-[13px] font-semibold">+40 000 С</p>
+                  <p className="text-white text-[13px] font-semibold">+{formatSomCompact(user.salary.amount)}</p>
                 </div>
                 <div className="w-px h-6 bg-white/20" />
                 <div>
                   <p className="text-white/60 text-[11px]">Расходы</p>
-                  <p className="text-white text-[13px] font-semibold">−20 030 С</p>
+                  <p className="text-white text-[13px] font-semibold">−{formatSomCompact(marchAnalysis.totalSpent)}</p>
                 </div>
                 <div className="w-px h-6 bg-white/20" />
                 <div>
                   <p className="text-white/60 text-[11px]">Кешбэк</p>
-                  <p className="text-white text-[13px] font-semibold">+312 С</p>
+                  <p className="text-white text-[13px] font-semibold">+{formatSomCompact(marchAnalysis.cashback)}</p>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* ── Autopilot Savings widget ── */}
+          <div className="px-4 mb-3 anim-hidden animate-fade-up delay-2">
+            <AutopilotWidget />
           </div>
 
           {/* ── Quick actions ── */}
@@ -119,26 +162,28 @@ export default function Home() {
             <div className="mbank-card cursor-pointer">
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-[15px] font-semibold text-[#111111]">За Апрель</p>
+                  <p className="text-[15px] font-semibold text-[#111111]">За {marchAnalysis.period}</p>
                   <p className="text-[12px] text-[#999]">Финансовый анализ</p>
                 </div>
-                <span className="text-[14px] font-semibold text-[#111111]">20 030 <span className="text-[#009C4D]">›</span></span>
+                <span className="text-[14px] font-semibold text-[#111111]">
+                  {formatSomCompact(marchAnalysis.totalSpent)} <span className="text-[#009C4D]">›</span>
+                </span>
               </div>
-              {/* Horizontal spending bar */}
+              {/* Horizontal spending bar — segments from marchAnalysis.categories */}
               <div className="h-2 rounded-full overflow-hidden flex gap-0.5">
-                <div style={{ width: "35%", background: "#3B82F6", borderRadius: "4px 0 0 4px" }} />
-                <div style={{ width: "33%", background: "#009C4D" }} />
-                <div style={{ width: "14%", background: "#FABF00" }} />
-                <div style={{ width: "14%", background: "#8B5CF6" }} />
-                <div style={{ width: "4%",  background: "#E53E3E", borderRadius: "0 4px 4px 0" }} />
+                {marchAnalysis.categories.map((cat, i) => (
+                  <div
+                    key={cat.label}
+                    style={{
+                      width: `${cat.percent}%`,
+                      background: cat.color,
+                      borderRadius: i === 0 ? "4px 0 0 4px" : i === marchAnalysis.categories.length - 1 ? "0 4px 4px 0" : "0",
+                    }}
+                  />
+                ))}
               </div>
               <div className="flex gap-3 mt-2">
-                {[
-                  { color: "#3B82F6", label: "Еда" },
-                  { color: "#009C4D", label: "Покупки" },
-                  { color: "#FABF00", label: "Кафе" },
-                  { color: "#8B5CF6", label: "Счета" },
-                ].map((c) => (
+                {marchAnalysis.categories.slice(0, 4).map((c) => (
                   <div key={c.label} className="flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full" style={{ background: c.color }} />
                     <span className="text-[10px] text-[#999]">{c.label}</span>
@@ -155,21 +200,19 @@ export default function Home() {
               <button className="text-[13px] text-[#009C4D] font-medium">Все</button>
             </div>
             <div className="mbank-card !p-0 overflow-hidden">
-              {[
-                { icon: "⚡", name: "Severelectro",   amount: "1 240 С", status: "Скоро",   statusClass: "badge-soon"     },
-                { icon: "🔥", name: "Bishkekteploset", amount: "2 100 С", status: "Скоро",   statusClass: "badge-soon"     },
-                { icon: "📡", name: "MegaCom",          amount: "650 С",   status: "Просроч.", statusClass: "badge-overdue"   },
-              ].map((bill, i, arr) => (
+              {upcomingBills.map((bill, i) => (
                 <div
-                  key={bill.name}
-                  className={`flex items-center gap-3 px-4 py-3 ${i < arr.length - 1 ? "mbank-divider" : ""}`}
+                  key={bill.id}
+                  className={`flex items-center gap-3 px-4 py-3 ${i < upcomingBills.length - 1 ? "mbank-divider" : ""}`}
                 >
                   <div className="mbank-icon !w-10 !h-10 text-[18px]">{bill.icon}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[14px] font-medium text-[#111111]">{bill.name}</p>
-                    <span className={`badge ${bill.statusClass} mt-0.5`}>● {bill.status}</span>
+                    <span className={`badge ${bill.status === "Просрочено" ? "badge-overdue" : "badge-soon"} mt-0.5`}>
+                      ● {bill.status}
+                    </span>
                   </div>
-                  <p className="text-[14px] font-bold text-[#111111]">{bill.amount}</p>
+                  <p className="text-[14px] font-bold text-[#111111]">{formatSomCompact(bill.amount)}</p>
                 </div>
               ))}
             </div>
@@ -182,35 +225,36 @@ export default function Home() {
               <button className="text-[13px] text-[#009C4D] font-medium">История</button>
             </div>
             <div className="mbank-card !p-0 overflow-hidden">
-              {[
-                { initials: "C",  name: "Carrefour",     cat: "Еда",      amount: "−3 200 С",  income: false },
-                { initials: "З",  name: "Зарплата",      cat: "Доход",    amount: "+40 000 С", income: true  },
-                { initials: "Z",  name: "Zia Restaurant", cat: "Кафе",    amount: "−1 800 С",  income: false },
-                { initials: "Д",  name: "Dordoi Bazaar", cat: "Покупки",  amount: "−5 600 С",  income: false },
-              ].map((tx, i, arr) => (
-                <div
-                  key={tx.name}
-                  className={`flex items-center gap-3 px-4 py-3 ${i < arr.length - 1 ? "mbank-divider" : ""}`}
-                >
+              {recentTxs.map((tx, i) => {
+                const isIncome = tx.type === "income";
+                return (
                   <div
-                    className="w-10 h-10 rounded-[10px] flex items-center justify-center text-[14px] font-bold flex-shrink-0"
-                    style={{ background: tx.income ? "rgba(0,156,77,0.12)" : "#F0F0F0", color: tx.income ? "#009C4D" : "#666" }}
+                    key={tx.id}
+                    className={`flex items-center gap-3 px-4 py-3 ${i < recentTxs.length - 1 ? "mbank-divider" : ""}`}
                   >
-                    {tx.initials}
+                    <div
+                      className="w-10 h-10 rounded-[10px] flex items-center justify-center text-[14px] font-bold flex-shrink-0"
+                      style={{
+                        background: isIncome ? "rgba(0,156,77,0.12)" : "#F0F0F0",
+                        color: isIncome ? "#009C4D" : "#666",
+                      }}
+                    >
+                      {tx.merchantInitial}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[14px] font-medium text-[#111111] truncate">{tx.title}</p>
+                      <p className="text-[12px] text-[#999]">{tx.category}</p>
+                    </div>
+                    <p className={`text-[14px] font-bold ${isIncome ? "text-[#009C4D]" : "text-[#111111]"}`}>
+                      {isIncome ? "+" : "−"}{formatSomCompact(tx.amount)}
+                    </p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-medium text-[#111111] truncate">{tx.name}</p>
-                    <p className="text-[12px] text-[#999]">{tx.cat}</p>
-                  </div>
-                  <p className={`text-[14px] font-bold ${tx.income ? "text-[#009C4D]" : "text-[#111111]"}`}>
-                    {tx.amount}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
-          {/* ── AI Advisor card (placeholder for feature) ── */}
+          {/* ── AI Advisor card ── */}
           <div className="px-4 mb-6 anim-hidden animate-fade-up delay-5">
             <div
               className="rounded-[16px] p-4 flex items-start gap-3"
@@ -230,9 +274,15 @@ export default function Home() {
               <div className="flex-1">
                 <p className="text-[13px] font-semibold text-[#111111]">Финансовый советник</p>
                 <p className="text-[12px] text-[#555] mt-0.5 leading-relaxed">
-                  До зарплаты 6 дней. Осталось 38 450 С, но ещё выйдут счета на 3 990 С.
+                  До зарплаты {daysToSalary} {daysToSalary === 1 ? "день" : daysToSalary < 5 ? "дня" : "дней"}.
+                  {" "}Осталось {formatSom(primaryCard.balance)}, но ещё выйдут счета на {formatSomCompact(billsTotal)}.
                 </p>
-                <button className="mt-2 text-[12px] font-semibold text-[#009C4D]">Открыть советника →</button>
+                <button
+                  onClick={() => {}}
+                  className="mt-2 text-[12px] font-semibold text-[#009C4D]"
+                >
+                  Открыть советника →
+                </button>
               </div>
             </div>
           </div>

@@ -228,23 +228,40 @@ export const upcomingBills: UpcomingBill[] = [
   { id: "b-3", name: "MegaCom",          amount: 650,  dueISO: "2026-04-10", status: "Просрочено", icon: "📡" },
 ];
 
-export type SavingsGoal = {
-  id: string;
-  name: string;
-  target: number;
-  saved: number;
-  icon: string;
+export type AutopilotHistoryEntry = {
+  reason: "rounding" | "blocked" | "found";
+  amount: number;
+  dateISO: string;
+  note: string;
 };
 
-export const savingsGoals: SavingsGoal[] = [
-  { id: "g-1", name: "На машину", target: 500000, saved: 84500, icon: "🚗" },
-  { id: "g-2", name: "Отпуск в Турции", target: 80000, saved: 22300, icon: "🏖️" },
-];
+export const autopilotSavings = {
+  total: 84500,
+  apr: 8,
+  goal: {
+    name: "На машину",
+    target: 500000,
+    icon: "🚗",
+    aiReason: "Ты смотришь Mashina.kg. Я сам заметил.",
+  },
+  history: [
+    { reason: "rounding", amount: 3,    dateISO: "2026-04-14", note: "Сдача с Тулпар" },
+    { reason: "blocked",  amount: 280,  dateISO: "2026-04-13", note: "Coffee Room — отменил" },
+    { reason: "rounding", amount: 10,   dateISO: "2026-04-13", note: "Сдача с Namba Taxi" },
+    { reason: "found",    amount: 1800, dateISO: "2026-04-01", note: "Такси в марте меньше обычного" },
+    { reason: "rounding", amount: 50,   dateISO: "2026-03-31", note: "Сдача с Frunze Supermarket" },
+    { reason: "blocked",  amount: 199,  dateISO: "2026-03-28", note: "Spotify — заморозил" },
+    { reason: "found",    amount: 2400, dateISO: "2026-03-20", note: "Кафе в марте ниже нормы" },
+    { reason: "rounding", amount: 200,  dateISO: "2026-03-15", note: "Сдача с Dordoi Bazaar" },
+    { reason: "rounding", amount: 200,  dateISO: "2026-03-10", note: "Сдача с Carrefour" },
+  ] as AutopilotHistoryEntry[],
+};
 
 // March breakdown for the "За Март" financial analysis widget on Home.
 export const marchAnalysis = {
   period: "Март",
   totalSpent: 20030,
+  cashback: 312,
   categories: [
     { label: "Еда",       value: 7010, percent: 35, color: "#3B82F6" },
     { label: "Покупки",   value: 6610, percent: 33, color: "#009C4D" },
@@ -274,7 +291,7 @@ export const personas: Persona[] = [
     emoji: "🤝",
     accent: "from-emerald-500 to-emerald-700",
     systemPrompt:
-      "Ты — вежливый и эмпатичный финансовый ассистент MBank. Общайся на русском, коротко и по делу. Давай конкретные цифры в сомах (С). Никогда не осуждай пользователя. Если видишь риск кассового разрыва — спокойно предупреди и предложи одно конкретное действие.",
+      "Ты — вежливый и эмпатичный финансовый ассистент MBank. Общайся на русском, коротко и по делу. Давай конкретные цифры в сомах (С). Никогда не осуждай пользователя. Если видишь риск кассового разрыва — спокойно предупреди и предложи одно конкретное действие.\n\nВАЖНО: У тебя есть инструменты — ВСЕГДА вызывай их, когда пользователь спрашивает о финансах. Никогда не отвечай из головы, если есть подходящий инструмент:\n- вопросы о расходах/тратах → analyze_spending\n- вопросы о балансе/зарплате/счетах → predict_cashflow\n- вопросы о подписках → manage_subscriptions\n- вопросы о копилке/сбережениях → show_autopilot_summary",
   },
   {
     id: "toxic",
@@ -283,6 +300,6 @@ export const personas: Persona[] = [
     emoji: "😈",
     accent: "from-rose-500 to-fuchsia-700",
     systemPrompt:
-      "Ты — токсичный друг-финансист из MBank. Общайся на русском, коротко, с сарказмом и дружеским подколом. Можешь прожаривать пользователя за кофе, такси и подписки, но ВСЕГДА давай корректный финансовый совет с конкретными цифрами в сомах (С). ЗАПРЕЩЕНО шутить над: аптеками, больницами, медициной, похоронами, зарплатой ниже среднего. Пользователь сам выбрал этот режим — не извиняйся за тон.",
+      "Ты — токсичный друг-финансист из MBank. Общайся на русском, коротко, с сарказмом и дружеским подколом. Можешь прожаривать пользователя за кофе, такси и подписки, но ВСЕГДА давай корректный финансовый совет с конкретными цифрами в сомах (С). ЗАПРЕЩЕНО шутить над: аптеками, больницами, медициной, похоронами, зарплатой ниже среднего. Пользователь сам выбрал этот режим — не извиняйся за тон.\n\nВАЖНО: ВСЕГДА вызывай инструменты — никогда не выдумывай цифры:\n- вопросы о расходах/тратах → analyze_spending\n- вопросы о балансе/зарплате/счетах → predict_cashflow\n- вопросы о подписках → manage_subscriptions\n- вопросы о копилке/сбережениях → show_autopilot_summary",
   },
 ];
