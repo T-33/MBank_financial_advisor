@@ -271,6 +271,71 @@ export const marchAnalysis = {
   ],
 };
 
+// ── Pending transactions — for Spending Intercept (Feature A) ───────────────
+// Hardcoded offline-safe. No LLM calls. Medical-free guarantee.
+
+export type PendingTransaction = {
+  id: string;
+  merchant: string;
+  amount: number;
+  pattern: string; // human-readable pattern label shown in banner header
+  intercept: {
+    toxic: string[];
+    caring: string[];
+  };
+};
+
+export const pendingTransactions: PendingTransaction[] = [
+  {
+    id: "pending-tulpar",
+    merchant: "Оплата по QR Тулпар",
+    amount: 17,
+    pattern: "3-й раз за неделю",
+    intercept: {
+      toxic: [
+        "Тулпар 17 сом. Ещё раз Тулпар 17 сом. За неделю ты на такси уже потратил столько, что таксист зовёт тебя по имени. Может хватит?",
+        "Bro. 3-й Тулпар за 7 дней. Это не такси, это абонемент. Отмени, я положу эти 17 С на депозит — хоть копейку заработаешь.",
+      ],
+      caring: [
+        "Тимур, третья поездка в Тулпар за неделю. Может сейчас пройтись? Погода хорошая. Деньги могу положить на копилку — растут под 8%.",
+        "Заметила паттерн: ты часто берёшь такси на короткие расстояния. Давай эти 17 С отложим? За год набегает прилично.",
+      ],
+    },
+  },
+  {
+    id: "pending-coffee",
+    merchant: "Coffee Room",
+    amount: 280,
+    pattern: "4-й кофе за день",
+    intercept: {
+      toxic: [
+        "4-й кофе за день? Ты не просыпаешься — ты работаешь на Coffee Room. 280 С × 20 дней = 5 600 С в месяц на кофеин. Может хватит?",
+        "Bro, в тебе больше Coffee Room, чем крови. Отмени, эти 280 С уедут на машину. Едешь туда же на такси — и там заберёшь.",
+      ],
+      caring: [
+        "Это уже четвёртая чашка за сегодня. Водичка тоже неплохо бодрит — и 280 С на копилку будут приятным бонусом.",
+        "Тимур, замечаю много трат на кофе. Давай эти 280 С отложим на машину? Уже 84 500 скоплено — ты близко.",
+      ],
+    },
+  },
+  {
+    id: "pending-spotify",
+    merchant: "Spotify Premium",
+    amount: 199,
+    pattern: "Не слушал 18 дней",
+    intercept: {
+      toxic: [
+        "Spotify 199 С. Ты не слушал музыку 18 дней. Это не подписка, это благотворительность. Отмени — деньги хоть на депозите поработают.",
+        "18 дней тишины, и ты опять продлеваешь? Bro, YouTube Shorts бесплатный. Отмени Spotify, я положу 199 С на 8% — вот это музыка.",
+      ],
+      caring: [
+        "Spotify продлевается, но ты не слушал музыку 18 дней. Может заморозить на месяц и отложить 199 С на машину?",
+        "Заметила: Spotify не используется почти три недели. Если отменить сейчас, 199 С уйдут в копилку под 8% годовых.",
+      ],
+    },
+  },
+];
+
 // Persona definitions — passed into the LLM system prompt.
 export type PersonaId = "caring" | "toxic";
 

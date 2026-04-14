@@ -5,29 +5,25 @@ import { AnimatePresence, motion } from "framer-motion";
 import { X, Send } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { personas, type PersonaId, autopilotSavings, upcomingBills } from "@/lib/mockData";
-import { formatSomCompact } from "@/lib/format";
+import { personas, type PersonaId } from "@/lib/mockData";
+import { useAutopilot } from "@/lib/store";
 import MessageList from "./MessageList";
 
 type Props = { open: boolean; onClose: () => void };
 
 const OPENER_TRIGGER = "__opener__";
 
-function getOpenerText(personaId: PersonaId): string {
-  const savings = formatSomCompact(autopilotSavings.total);
-  const bill = upcomingBills.find((b) => b.status === "Просрочено") ?? upcomingBills[0];
-  const billStr = `${bill.name} ${formatSomCompact(bill.amount)}`;
-  if (personaId === "toxic") {
-    return `Привет, транжира. Смотрю в копилке уже ${savings} — это я за тебя постарался, не ты. И у тебя просрочен счёт ${billStr}. Позор. Спрашивай.`;
-  }
-  return `Привет! Слежу за твоими финансами. В копилке ${savings} С на машину — хороший прогресс! Есть просроченный счёт ${billStr}, лучше оплати сегодня. Чем могу помочь?`;
-}
-
 export default function ChatOverlay({ open, onClose }: Props) {
   const [personaId, setPersonaId] = useState<PersonaId | null>(null);
+  const { setPersonaId: persistPersona } = useAutopilot();
 
   // Reset persona when chat is closed
   useEffect(() => { if (!open) setPersonaId(null); }, [open]);
+
+  const handlePickPersona = (id: PersonaId) => {
+    setPersonaId(id);
+    persistPersona(id); // propagate to store → intercept banner reads from here
+  };
 
   return (
     <AnimatePresence>
@@ -70,7 +66,7 @@ export default function ChatOverlay({ open, onClose }: Props) {
 
           {/* Body */}
           {!personaId ? (
-            <PersonaPicker onPick={setPersonaId} />
+            <PersonaPicker onPick={handlePickPersona} />
           ) : (
             <ChatBody key={personaId} personaId={personaId} />
           )}
@@ -112,7 +108,8 @@ function PersonaPicker({ onPick }: { onPick: (id: PersonaId) => void }) {
 
 // ── Chat body ───────────────────────────────────────────────────────────────
 
-const CHIPS = ["Что в копилке?", "Хватит до зарплаты?", "Куда уходят деньги?", "Покажи подписки"];
+const BASE_CHIPS = ["Что в копилке?", "Хватит до зарплаты?", "Куда уходят деньги?", "Покажи подписки", "Покажи машину"];
+const TOXIC_EXTRA = "Прожарь мои траты 🔥";
 
 function ChatBody({ personaId }: { personaId: PersonaId }) {
   const [input, setInput] = useState("");
@@ -155,20 +152,23 @@ function ChatBody({ personaId }: { personaId: PersonaId }) {
     return text !== OPENER_TRIGGER;
   });
 
-  const showChips = visibleMessages.length === 0 && !isStreaming;
+  // Show chips after opener appears but before the user has typed anything
+  const hasUserMessage = visibleMessages.some((m) => m.role === "user");
+  const showChips = !hasUserMessage && !isStreaming;
+  const chips = personaId === "toxic" ? [...BASE_CHIPS, TOXIC_EXTRA] : BASE_CHIPS;
 
   return (
     <>
       <div className="flex-1 overflow-y-auto">
         {showChips && (
-          <div className="px-4 pt-6 pb-4">
+          <div className="pt-5 pb-3">
             <p className="text-[12px] text-[#999] mb-3 text-center">Попробуй спросить</p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {CHIPS.map((c) => (
+            <div className="flex gap-2 px-4 overflow-x-auto pb-1 scrollbar-hide">
+              {chips.map((c) => (
                 <button
                   key={c}
                   onClick={() => { setInput(""); sendMessage({ text: c }); }}
-                  className="px-3 py-1.5 rounded-full bg-white border border-[#ECECEC] text-[12px] text-[#111111] font-medium active:scale-95 transition-transform shadow-sm"
+                  className="flex-shrink-0 px-3 py-2 rounded-full bg-white border border-[#ECECEC] text-[12px] text-[#111111] font-medium active:scale-95 active:bg-slate-50 transition-transform shadow-sm whitespace-nowrap"
                 >
                   {c}
                 </button>

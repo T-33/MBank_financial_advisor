@@ -22,7 +22,15 @@ const next = nums.length > 0 ? Math.max(...nums) + 1 : 1;
 const filename = label ? `screenshot-${next}-${label}.png` : `screenshot-${next}.png`;
 const outPath = join(screenshotsDir, filename);
 
-const CHROME_PATH = "C:/Program Files/Google/Chrome/Application/chrome.exe";
+// Try flatpak Chrome on Linux, fall back to Windows path
+const CHROME_PATH =
+  existsSync("/var/lib/flatpak/app/com.google.Chrome/x86_64/stable")
+    ? (() => {
+        const base = "/var/lib/flatpak/app/com.google.Chrome/x86_64/stable";
+        const dirs = readdirSync(base);
+        return `${base}/${dirs[0]}/files/extra/chrome`;
+      })()
+    : "C:/Program Files/Google/Chrome/Application/chrome.exe";
 
 const browser = await puppeteer.launch({
   executablePath: CHROME_PATH,

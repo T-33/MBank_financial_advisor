@@ -44,7 +44,7 @@ export default function SubscriptionFreezeCard({ subscriptions, totalMonthly }: 
                 <p className="text-[10px] text-slate-400">{formatSomCompact(sub.amount)}/мес</p>
               </div>
               <button
-                onClick={() => setFrozen((prev) => { const s = new Set(prev); s.has(sub.id) ? s.delete(sub.id) : s.add(sub.id); return s; })}
+                onClick={() => setFrozen((prev) => { const s = new Set(prev); if (s.has(sub.id)) { s.delete(sub.id); } else { s.add(sub.id); } return s; })}
                 className={`text-[10px] font-semibold px-2.5 py-1 rounded-lg flex-shrink-0 transition-colors ${
                   isFrozen
                     ? "bg-slate-100 text-slate-500"

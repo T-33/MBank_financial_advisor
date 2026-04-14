@@ -104,6 +104,10 @@
   .animate-fade-in { animation: fadeIn 0.2s ease forwards; }
   .anim-hidden { opacity: 0; }
 
+  /* Hide scrollbar while keeping scroll */
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
   .delay-1 { animation-delay: 60ms; }
   .delay-2 { animation-delay: 120ms; }
   .delay-3 { animation-delay: 180ms; }
