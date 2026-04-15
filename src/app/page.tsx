@@ -17,6 +17,7 @@ import {
 } from "@/lib/mockData";
 import { formatSom, formatSomCompact, daysUntil } from "@/lib/format";
 import AutopilotWidget from "@/components/home/AutopilotWidget";
+import MerchantLogo from "@/components/home/MerchantLogo";
 import InterceptBanner from "@/components/intercept/InterceptBanner";
 import DevTriggerButton from "@/components/intercept/DevTriggerButton";
 import { AutopilotProvider, useAutopilot } from "@/lib/store";
@@ -272,7 +273,7 @@ function PhoneShell() {
                 key={bill.id}
                 className={`flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-[#F8F8F8] transition-colors duration-100 ${i < upcomingBills.length - 1 ? "mbank-divider" : ""}`}
               >
-                <div className="mbank-icon !w-10 !h-10 text-[18px]">{bill.icon}</div>
+                <MerchantLogo name={bill.name} size={40} />
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] font-medium text-[#111111]">{bill.name}</p>
                   <span className={`badge ${bill.status === "Просрочено" ? "badge-overdue" : "badge-soon"} mt-0.5`}>
@@ -299,15 +300,7 @@ function PhoneShell() {
                   key={tx.id}
                   className={`flex items-center gap-3 px-4 py-3 cursor-pointer active:bg-[#F8F8F8] transition-colors duration-100 ${i < recentTxs.length - 1 ? "mbank-divider" : ""}`}
                 >
-                  <div
-                    className="w-10 h-10 rounded-[10px] flex items-center justify-center text-[14px] font-bold flex-shrink-0"
-                    style={{
-                      background: isIncome ? "rgba(0,156,77,0.12)" : "#F0F0F0",
-                      color: isIncome ? "#009C4D" : "#666",
-                    }}
-                  >
-                    {tx.merchantInitial}
-                  </div>
+                  <MerchantLogo name={tx.title} size={40} />
                   <div className="flex-1 min-w-0">
                     <p className="text-[14px] font-medium text-[#111111] truncate">{tx.title}</p>
                     <p className="text-[12px] text-[#999]">{tx.category}</p>

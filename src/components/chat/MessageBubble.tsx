@@ -1,12 +1,21 @@
 "use client";
 
 import { UIMessage } from "ai";
+import { useEffect } from "react";
 import CashflowWarningCard from "./cards/CashflowWarningCard";
 import SpendingBreakdownCard from "./cards/SpendingBreakdownCard";
 import SubscriptionFreezeCard from "./cards/SubscriptionFreezeCard";
 import AutopilotJarCard from "./cards/AutopilotJarCard";
+import { useAutopilot } from "@/lib/store";
 
 type Props = { message: UIMessage };
+
+// Syncs an AI-driven freeze tool call into the global store
+function FreezeSync({ id }: { id: string }) {
+  const { freezeSubscription } = useAutopilot();
+  useEffect(() => { freezeSubscription(id); }, [id, freezeSubscription]);
+  return null;
+}
 
 function normalizeAssistantText(text: string): string {
   return text
