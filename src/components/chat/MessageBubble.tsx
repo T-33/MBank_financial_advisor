@@ -96,7 +96,7 @@ export default function MessageBubble({ message }: Props) {
           return (
             <div key={i}>
               <SubscriptionFreezeCard
-                subscriptions={output.subscriptions as { id: string; name: string; amount: number; nextCharge: string; category: string }[]}
+                subscriptions={output.subscriptions as { id: string; name: string; amount: number; nextCharge: string; category: string; frozen?: boolean }[]}
                 totalMonthly={output.totalMonthly as number}
                 count={output.count as number}
               />

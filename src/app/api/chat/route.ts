@@ -12,8 +12,9 @@ import {
   createUIMessageStreamResponse,
 } from "ai";
 import { createDeepSeek } from "@ai-sdk/deepseek";
-import { personas, type PersonaId } from "@/lib/mockData";
+import { personas, subscriptions, type PersonaId } from "@/lib/mockData";
 import { tools } from "@/lib/tools";
+import { serverFrozenSubIds } from "@/lib/subscriptionState";
 import {
   detectFallbackTool,
   getFallbackOutput,
@@ -104,7 +105,6 @@ function buildFallbackResponse(
 
 export async function POST(req: Request) {
   const { messages, personaId } = await req.json();
-
   const persona = personas.find((p) => p.id === personaId) ?? personas[0];
 
   // Allow forcing offline mode via env flag (useful for demo/pitch)
@@ -112,12 +112,24 @@ export async function POST(req: Request) {
     return buildFallbackResponse(messages as RawMessage[], personaId);
   }
 
+  // Build dynamic frozen-state context so the LLM knows current state
+  // even if it doesn't re-call the tool (responds from conversation history).
+  const frozenNames = Array.from(serverFrozenSubIds)
+    .map((id) => subscriptions.find((s) => s.id === id)?.name)
+    .filter(Boolean)
+    .join(", ");
+  const frozenCtx =
+    frozenNames.length > 0
+      ? `\n\n[АКТУАЛЬНОЕ СОСТОЯНИЕ ПОДПИСОК]: Пользователь заморозил через интерфейс: ${frozenNames}. Это точные данные — никогда не говори что "все подписки активны". Если спрашивают о подписках — ОБЯЗАТЕЛЬНО вызови manage_subscriptions чтобы получить свежий список.`
+      : `\n\n[АКТУАЛЬНОЕ СОСТОЯНИЕ ПОДПИСОК]: Все подписки активны (ни одна не заморожена).`;
+  const systemWithContext = persona.systemPrompt + frozenCtx;
+
   try {
     const modelMessages = await convertToModelMessages(messages);
 
     const result = streamText({
       model: deepseek("deepseek-chat"),
-      system: persona.systemPrompt,
+      system: systemWithContext,
       messages: modelMessages,
       tools,
       toolChoice: "auto",

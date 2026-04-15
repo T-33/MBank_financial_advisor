@@ -11,6 +11,7 @@ import {
   subscriptions,
   type PersonaId,
 } from "./mockData";
+import { serverFrozenSubIds } from "./subscriptionState";
 
 const COLORS: Record<string, string> = {
   Еда: "#3B82F6",
@@ -128,6 +129,7 @@ export function getFallbackOutput(toolName: string): Record<string, unknown> {
           amount: s.amount,
           nextCharge: s.nextChargeISO,
           category: s.category,
+          frozen: serverFrozenSubIds.has(s.id),
         })),
         totalMonthly: subscriptions.reduce((s, sub) => s + sub.amount, 0),
         count: subscriptions.length,

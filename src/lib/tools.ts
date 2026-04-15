@@ -12,6 +12,7 @@ import {
   subscriptions,
   autopilotSavings,
 } from "./mockData";
+import { serverFrozenSubIds } from "./subscriptionState";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -133,6 +134,7 @@ export const manageSubscriptions = tool({
           amount: sub.amount,
           nextCharge: sub.nextChargeISO,
           category: sub.category,
+          frozen: serverFrozenSubIds.has(sub.id),
         })),
         totalMonthly: subscriptions.reduce((s, sub) => s + sub.amount, 0),
         count: subscriptions.length,
@@ -147,6 +149,8 @@ export const manageSubscriptions = tool({
         message: "Подписка не найдена. Запроси список через action='list'.",
       };
     }
+
+    serverFrozenSubIds.add(target.id);
 
     return {
       action: "freeze" as const,
