@@ -104,12 +104,22 @@ function buildFallbackResponse(
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: Request) {
-  const { messages, personaId } = await req.json();
+  let messages: RawMessage[];
+  let personaId: string;
+
+  try {
+    const body = await req.json();
+    messages = body.messages ?? [];
+    personaId = body.personaId ?? "caring";
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
   const persona = personas.find((p) => p.id === personaId) ?? personas[0];
 
   // Allow forcing offline mode via env flag (useful for demo/pitch)
   if (process.env.OFFLINE_MODE === "true") {
-    return buildFallbackResponse(messages as RawMessage[], personaId);
+    return buildFallbackResponse(messages, personaId);
   }
 
   // Build dynamic frozen-state context so the LLM knows current state
@@ -125,7 +135,7 @@ export async function POST(req: Request) {
   const systemWithContext = persona.systemPrompt + frozenCtx;
 
   try {
-    const modelMessages = await convertToModelMessages(messages);
+    const modelMessages = await convertToModelMessages(messages as Parameters<typeof convertToModelMessages>[0]);
 
     const result = streamText({
       model: deepseek("deepseek-chat"),
@@ -139,6 +149,6 @@ export async function POST(req: Request) {
     return result.toUIMessageStreamResponse();
   } catch {
     // Network error, quota exceeded, or key missing → serve from cache
-    return buildFallbackResponse(messages as RawMessage[], personaId);
+    return buildFallbackResponse(messages, personaId);
   }
 }

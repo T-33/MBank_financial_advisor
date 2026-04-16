@@ -6,6 +6,7 @@
 import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ChatOverlay from "@/components/chat/ChatOverlay";
+import DepositDetailOverlay from "@/components/deposit/DepositDetailOverlay";
 import {
   user,
   cards,
@@ -33,6 +34,7 @@ function PhoneShell() {
   const { addToAutopilot, personaId: activePersona } = useAutopilot();
 
   const [chatOpen, setChatOpen] = useState(false);
+  const [depositOpen, setDepositOpen] = useState(false);
   const [activePending, setActivePending] = useState<PendingTransaction | null>(null);
 
   // ── Persona-change toast ──────────────────────────────────────────────────
@@ -51,7 +53,14 @@ function PhoneShell() {
   const activePersonaObj = personas.find((p) => p.id === activePersona) ?? personas[0];
 
   const handleCancel = () => {
-    if (activePending) addToAutopilot(activePending.amount);
+    if (activePending) {
+      addToAutopilot(activePending.amount, {
+        reason: "blocked",
+        amount: activePending.amount,
+        dateISO: "2026-04-14",
+        note: `${activePending.merchant} — отменил`,
+      });
+    }
     setActivePending(null);
   };
 
@@ -60,7 +69,15 @@ function PhoneShell() {
   };
 
   const triggerIntercept = (pending: PendingTransaction) => {
-    if (!chatOpen) setActivePending(pending);
+    if (!chatOpen && !depositOpen) setActivePending(pending);
+  };
+
+  const handleOpenChat = () => {
+    if (!depositOpen) setChatOpen(true);
+  };
+
+  const handleOpenDeposit = () => {
+    if (!chatOpen) setDepositOpen(true);
   };
 
   return (
@@ -174,7 +191,7 @@ function PhoneShell() {
 
         {/* ── Autopilot Savings widget ── */}
         <div className="px-4 mb-3 anim-hidden animate-fade-up delay-2">
-          <AutopilotWidget />
+          <AutopilotWidget onTap={handleOpenDeposit} />
         </div>
 
         {/* ── Quick actions ── */}
@@ -340,7 +357,7 @@ function PhoneShell() {
                 {formatSomCompact(billsTotal)}.
               </p>
               <button
-                onClick={() => setChatOpen(true)}
+                onClick={handleOpenChat}
                 className="mt-2 text-[12px] font-semibold text-[#009C4D] active:opacity-70 transition-opacity duration-100"
               >
                 Открыть советника →
@@ -380,10 +397,20 @@ function PhoneShell() {
         {/* AI FAB */}
         <div className="flex flex-col items-center gap-1" style={{ marginTop: "-24px" }}>
           <div className="relative">
-            <button
-              onClick={() => setChatOpen(true)}
+            {/* Pulse ring */}
+            <span
+              className="absolute inset-0 rounded-full pointer-events-none fab-pulse-ring"
+              style={{
+                background: activePersona === "toxic"
+                  ? "rgba(244,63,94,0.38)"
+                  : "rgba(0,184,90,0.38)",
+              }}
+            />
+            <motion.button
+              onClick={handleOpenChat}
               aria-label="Открыть AI-ассистента"
-              className="w-[60px] h-[60px] rounded-full flex items-center justify-center active:scale-95 transition-transform"
+              whileTap={{ scale: 0.91 }}
+              className="w-[60px] h-[60px] rounded-full flex items-center justify-center relative z-10"
               style={{
                 background: activePersona === "toxic"
                   ? "linear-gradient(135deg, #F43F5E 0%, #A21CAF 100%)"
@@ -394,27 +421,46 @@ function PhoneShell() {
                 transition: "background 0.4s ease, box-shadow 0.4s ease",
               }}
             >
-              {activePersona === "toxic" ? (
-                <span className="text-[22px] leading-none select-none">😈</span>
-              ) : (
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M12 2l1.9 5.6L19.5 9 14 11l-2 5.5L10 11 4.5 9l5.6-1.4L12 2z"
-                    fill="white"
-                  />
-                  <circle cx="19" cy="5" r="1.4" fill="white" opacity="0.9" />
-                  <circle cx="5" cy="18" r="1.1" fill="white" opacity="0.8" />
-                </svg>
-              )}
-            </button>
+              <AnimatePresence mode="wait">
+                {activePersona === "toxic" ? (
+                  <motion.span
+                    key="toxic"
+                    initial={{ scale: 0.5, opacity: 0, rotate: -20 }}
+                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                    transition={{ type: "spring", damping: 18, stiffness: 300 }}
+                    className="text-[22px] leading-none select-none"
+                  >
+                    😈
+                  </motion.span>
+                ) : (
+                  <motion.div
+                    key="ai"
+                    initial={{ scale: 0.5, opacity: 0, rotate: 20 }}
+                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                    transition={{ type: "spring", damping: 18, stiffness: 300 }}
+                  >
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2l1.9 5.6L19.5 9 14 11l-2 5.5L10 11 4.5 9l5.6-1.4L12 2z" fill="white" />
+                      <circle cx="19" cy="5" r="1.4" fill="white" opacity="0.9" />
+                      <circle cx="5" cy="18" r="1.1" fill="white" opacity="0.8" />
+                    </svg>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
           </div>
           {/* Persona label under FAB */}
-          <span
-            className="text-[9px] font-semibold leading-none transition-colors duration-300"
+          <motion.span
+            key={activePersona}
+            initial={{ opacity: 0, y: 3 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[9px] font-semibold leading-none"
             style={{ color: activePersona === "toxic" ? "#F43F5E" : "#009C4D" }}
           >
             {activePersona === "toxic" ? "Токсичный" : "AI"}
-          </span>
+          </motion.span>
         </div>
 
         {/* Сервисы */}
@@ -488,6 +534,9 @@ function PhoneShell() {
 
       {/* ── Dev trigger button (dev-only, z-45) ── */}
       <DevTriggerButton onTrigger={triggerIntercept} />
+
+      {/* ── Deposit detail overlay (z-50) ── */}
+      <DepositDetailOverlay open={depositOpen} onClose={() => setDepositOpen(false)} />
 
       {/* ── Chat overlay (z-50) ── */}
       <ChatOverlay open={chatOpen} onClose={() => setChatOpen(false)} />

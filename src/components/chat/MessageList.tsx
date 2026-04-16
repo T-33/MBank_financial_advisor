@@ -9,9 +9,10 @@ type Props = { messages: UIMessage[] };
 export default function MessageList({ messages }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const messageCount = messages.length;
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messageCount]);
 
   if (messages.length === 0) return null;
 

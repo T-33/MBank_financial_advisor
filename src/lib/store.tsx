@@ -1,53 +1,111 @@
 "use client";
 
-// Minimal React Context store for dynamic autopilot total + active persona.
-// Only the total and persona are dynamic; static fields come from mockData.
+// React Context store for dynamic autopilot state, persona, and deposit history.
 
-import { createContext, useContext, useState, type ReactNode } from "react";
-import { autopilotSavings, type PersonaId } from "./mockData";
+import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { autopilotSavings, subscriptions, type PersonaId, type AutopilotHistoryReason } from "./mockData";
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+export type DynamicHistoryEntry = {
+  id: string;
+  reason: AutopilotHistoryReason;
+  amount: number;
+  dateISO: string;
+  note: string;
+  timestamp: number;
+};
+
+type HistoryInput = Omit<DynamicHistoryEntry, "id" | "timestamp">;
 
 type AutopilotCtx = {
   autopilotTotal: number;
-  addToAutopilot: (amount: number) => void;
+  addToAutopilot: (amount: number, entry?: HistoryInput) => void;
+  dynamicHistory: DynamicHistoryEntry[];
   personaId: PersonaId;
   setPersonaId: (id: PersonaId) => void;
   frozenSubIds: Set<string>;
   toggleFrozenSub: (id: string) => void;
-  /** Idempotent add — used to sync server-frozen subs into client context. */
   addFrozenSub: (id: string) => void;
+  freezeSubAndDeposit: (id: string) => void;
 };
 
+// ── Provider ─────────────────────────────────────────────────────────────────
+
 const AutopilotContext = createContext<AutopilotCtx | null>(null);
+
+let entrySeq = 0;
 
 export function AutopilotProvider({ children }: { children: ReactNode }) {
   const [autopilotTotal, setAutopilotTotal] = useState(autopilotSavings.total);
   const [personaId, setPersonaId] = useState<PersonaId>("caring");
   const [frozenSubIds, setFrozenSubIds] = useState<Set<string>>(new Set());
+  const [dynamicHistory, setDynamicHistory] = useState<DynamicHistoryEntry[]>([]);
 
-  function addToAutopilot(amount: number) {
+  const addToAutopilot = useCallback((amount: number, entry?: HistoryInput) => {
     setAutopilotTotal((prev) => prev + amount);
-  }
+    if (entry) {
+      setDynamicHistory((prev) => [
+        { ...entry, id: `dyn-${++entrySeq}`, timestamp: Date.now() },
+        ...prev,
+      ]);
+    }
+  }, []);
 
-  function toggleFrozenSub(id: string) {
+  const toggleFrozenSub = useCallback((id: string) => {
     setFrozenSubIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
-  }
+  }, []);
 
-  function addFrozenSub(id: string) {
+  const addFrozenSub = useCallback((id: string) => {
     setFrozenSubIds((prev) => {
-      if (prev.has(id)) return prev; // already frozen — no re-render
+      if (prev.has(id)) return prev;
       const next = new Set(prev);
       next.add(id);
       return next;
     });
-  }
+  }, []);
+
+  const freezeSubAndDeposit = useCallback((id: string) => {
+    // Check current state — if already frozen, skip (idempotent)
+    setFrozenSubIds((prev) => {
+      if (prev.has(id)) return prev; // already frozen, no-op
+      const next = new Set(prev);
+      next.add(id);
+
+      // Add to deposit history (only when actually freezing for the first time)
+      const sub = subscriptions.find((s) => s.id === id);
+      if (sub) {
+        setAutopilotTotal((t) => t + sub.amount);
+        setDynamicHistory((h) => [
+          {
+            id: `dyn-${++entrySeq}`,
+            reason: "frozen",
+            amount: sub.amount,
+            dateISO: "2026-04-14",
+            note: `${sub.name} — заморозил`,
+            timestamp: Date.now(),
+          },
+          ...h,
+        ]);
+      }
+
+      return next;
+    });
+  }, []);
 
   return (
-    <AutopilotContext.Provider value={{ autopilotTotal, addToAutopilot, personaId, setPersonaId, frozenSubIds, toggleFrozenSub, addFrozenSub }}>
+    <AutopilotContext.Provider
+      value={{
+        autopilotTotal, addToAutopilot, dynamicHistory,
+        personaId, setPersonaId,
+        frozenSubIds, toggleFrozenSub, addFrozenSub, freezeSubAndDeposit,
+      }}
+    >
       {children}
     </AutopilotContext.Provider>
   );

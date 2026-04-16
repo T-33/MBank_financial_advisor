@@ -2,6 +2,7 @@
 
 import { UIMessage } from "ai";
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 import CashflowWarningCard from "./cards/CashflowWarningCard";
 import SpendingBreakdownCard from "./cards/SpendingBreakdownCard";
 import SubscriptionFreezeCard from "./cards/SubscriptionFreezeCard";
@@ -11,10 +12,10 @@ import { useAutopilot } from "@/lib/store";
 
 type Props = { message: UIMessage };
 
-// Syncs an AI-driven freeze tool call into the global store
+// Syncs an AI-driven freeze tool call into the global store + deposit history
 function FreezeSync({ id }: { id: string }) {
-  const { addFrozenSub } = useAutopilot();
-  useEffect(() => { addFrozenSub(id); }, [id, addFrozenSub]);
+  const { freezeSubAndDeposit } = useAutopilot();
+  useEffect(() => { freezeSubAndDeposit(id); }, [id, freezeSubAndDeposit]);
   return null;
 }
 
@@ -26,26 +27,44 @@ function normalizeAssistantText(text: string): string {
     .trim();
 }
 
+// Spring preset for message bubbles
+const msgSpring = { type: "spring" as const, damping: 26, stiffness: 340, mass: 0.8 };
+
 export default function MessageBubble({ message }: Props) {
   const isUser = message.role === "user";
 
   if (isUser) {
-    // User message — get text from parts
     const textPart = message.parts.find((p) => p.type === "text");
     const text = textPart && "text" in textPart ? (textPart as { type: "text"; text: string }).text : "";
     if (!text) return null;
     return (
-      <div className="flex justify-end mb-2">
-        <div className="bg-[#009C4D] text-white rounded-2xl rounded-br-md px-4 py-2.5 max-w-[80%] text-[14px] leading-snug">
+      <motion.div
+        className="flex justify-end mb-2.5"
+        initial={{ opacity: 0, x: 14, y: 6 }}
+        animate={{ opacity: 1, x: 0, y: 0 }}
+        transition={msgSpring}
+      >
+        <div
+          className="text-white rounded-[18px] rounded-br-[6px] px-4 py-2.5 max-w-[80%] text-[14px] leading-snug"
+          style={{
+            background: "linear-gradient(135deg, #00B85A 0%, #008D3F 100%)",
+            boxShadow: "0 2px 12px rgba(0,156,77,0.28)",
+          }}
+        >
           {text}
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // Assistant — render parts
   return (
-    <div className="flex flex-col items-start gap-2 mb-2">
+    <motion.div
+      className="flex flex-col items-start gap-2 mb-2.5"
+      initial={{ opacity: 0, x: -10, y: 6 }}
+      animate={{ opacity: 1, x: 0, y: 0 }}
+      transition={msgSpring}
+    >
       {message.parts.map((part, i) => {
         // Plain text
         if (part.type === "text") {
@@ -54,7 +73,11 @@ export default function MessageBubble({ message }: Props) {
           return (
             <div
               key={i}
-              className="bg-white border border-[#ECECEC] rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[85%] text-[14px] text-[#111111] leading-snug whitespace-pre-line shadow-sm"
+              className="bg-white rounded-[18px] rounded-bl-[6px] px-4 py-3 max-w-[88%] text-[14px] text-[#111111] leading-[1.55] whitespace-pre-line"
+              style={{
+                boxShadow: "0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)",
+                border: "1px solid rgba(0,0,0,0.05)",
+              }}
             >
               {text}
             </div>
@@ -77,20 +100,30 @@ export default function MessageBubble({ message }: Props) {
 
         if (toolName === "analyze_spending") {
           return (
-            <div key={i}>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", damping: 24, stiffness: 280 }}
+            >
               <SpendingBreakdownCard
                 periodLabel={output.periodLabel as string}
                 total={output.total as number}
                 topCategory={output.topCategory as string}
                 categories={output.categories as { label: string; value: number; percent: number; color: string }[]}
               />
-            </div>
+            </motion.div>
           );
         }
 
         if (toolName === "predict_cashflow") {
           return (
-            <div key={i}>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", damping: 24, stiffness: 280 }}
+            >
               <CashflowWarningCard
                 daysUntilSalary={output.daysUntilSalary as number}
                 balance={output.balance as number}
@@ -98,7 +131,7 @@ export default function MessageBubble({ message }: Props) {
                 projectedShortfall={output.projectedShortfall as number}
                 riskLevel={output.riskLevel as "ok" | "tight" | "gap"}
               />
-            </div>
+            </motion.div>
           );
         }
 
@@ -108,19 +141,29 @@ export default function MessageBubble({ message }: Props) {
 
         if (toolName === "manage_subscriptions" && (output.action as string) === "list") {
           return (
-            <div key={i}>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", damping: 24, stiffness: 280 }}
+            >
               <SubscriptionFreezeCard
                 subscriptions={output.subscriptions as { id: string; name: string; amount: number; nextCharge: string; category: string; frozen?: boolean }[]}
                 totalMonthly={output.totalMonthly as number}
                 count={output.count as number}
               />
-            </div>
+            </motion.div>
           );
         }
 
         if (toolName === "show_autopilot_summary") {
           return (
-            <div key={i}>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", damping: 24, stiffness: 280 }}
+            >
               <AutopilotJarCard
                 total={output.total as number}
                 apr={output.apr as number}
@@ -129,25 +172,30 @@ export default function MessageBubble({ message }: Props) {
                 sources={output.sources as Record<string, number>}
                 recentHistory={output.recentHistory as { reason: string; amount: number; dateISO: string; note: string }[]}
               />
-            </div>
+            </motion.div>
           );
         }
 
         if (toolName === "find_in_mbank_catalog" && output.found) {
           return (
-            <div key={i}>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", damping: 24, stiffness: 280 }}
+            >
               <MMarketCrossSellCard
                 paidPrice={output.paidPrice as number}
                 product={output.product as { name: string; price: number; imageUrl: string; category: string; rating: number; reviewCount: number; freeDelivery: boolean }}
                 savings={output.savings as number}
                 savingsPercent={output.savingsPercent as number}
               />
-            </div>
+            </motion.div>
           );
         }
 
         return null;
       })}
-    </div>
+    </motion.div>
   );
 }

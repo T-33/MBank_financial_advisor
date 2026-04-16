@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 
 // Merchants that have a real logo file in /public/logos/
 const LOGO_FILES: Record<string, string> = {
@@ -21,6 +21,9 @@ type Props = {
 export default function MerchantLogo({ name, size = 40, radius = 10 }: Props) {
   const file = LOGO_FILES[name];
   const initial = name.charAt(0).toUpperCase();
+  const [imgFailed, setImgFailed] = useState(false);
+
+  const showInitial = !file || imgFailed;
 
   return (
     <div
@@ -36,18 +39,12 @@ export default function MerchantLogo({ name, size = 40, radius = 10 }: Props) {
         overflow: "hidden",
       }}
     >
-      {file ? (
+      {!showInitial ? (
         <img
           src={`/logos/${file}`}
           alt={name}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          onError={(e) => {
-            const el = e.currentTarget;
-            el.style.display = "none";
-            if (el.parentElement) {
-              el.parentElement.innerHTML = `<span style="color:#666;font-weight:700;font-size:${Math.round(size * 0.35)}px">${initial}</span>`;
-            }
-          }}
+          onError={() => setImgFailed(true)}
         />
       ) : (
         <span style={{ color: "#666", fontWeight: 700, fontSize: Math.round(size * 0.35) }}>

@@ -20,8 +20,8 @@ type Props = {
 
 export default function InterceptBanner({ pending, personaId, onCancel, onConfirm }: Props) {
   const persona = personas.find((p) => p.id === personaId) ?? personas[0];
+  const isToxic = personaId === "toxic";
 
-  // Pick a random reply once on mount — useState initializer runs only once
   const [reply] = useState<string>(() => {
     const arr = pending.intercept[personaId];
     return arr[Math.floor(Math.random() * arr.length)];
@@ -29,98 +29,131 @@ export default function InterceptBanner({ pending, personaId, onCancel, onConfir
 
   return (
     <>
-      {/* Dim backdrop */}
-      <div className="absolute inset-0 z-[58] bg-black/25" />
+      {/* Blurred backdrop */}
+      <motion.div
+        className="absolute inset-0 z-[58]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.22 }}
+        style={{ background: "rgba(0,0,0,0.30)", backdropFilter: "blur(4px)" }}
+      />
 
       {/* Banner slides down from top */}
       <motion.div
-        initial={{ y: "-100%" }}
+        initial={{ y: "-105%" }}
         animate={{ y: "0%" }}
-        exit={{ y: "-110%" }}
-        transition={{ type: "spring", damping: 28, stiffness: 260 }}
+        exit={{ y: "-108%", transition: { type: "spring", damping: 30, stiffness: 320 } }}
+        transition={{ type: "spring", damping: 26, stiffness: 300, mass: 0.85 }}
         className="absolute top-0 left-0 right-0 z-[60] bg-white"
         style={{
           borderRadius: "0 0 28px 28px",
-          boxShadow: "0 8px 48px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.08)",
+          boxShadow: "0 12px 48px rgba(0,0,0,0.24), 0 2px 8px rgba(0,0,0,0.08)",
         }}
       >
-        {/* Top safe-area spacer — matches status bar height */}
+        {/* Status bar spacer */}
         <div className="h-[40px]" />
 
         <div className="px-4 pb-5">
           {/* ── Header row ── */}
           <div className="flex items-center gap-2.5 mb-3">
-            {/* AI avatar in persona gradient */}
-            <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-[18px] flex-shrink-0 bg-gradient-to-br ${persona.accent}`}
+            <motion.div
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.18, type: "spring", damping: 18, stiffness: 300 }}
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-[20px] flex-shrink-0 bg-gradient-to-br ${persona.accent}`}
             >
               {persona.emoji}
-            </div>
+            </motion.div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-[#009C4D] font-semibold uppercase tracking-wide leading-none mb-0.5">
+              <p className={`text-[11px] font-semibold uppercase tracking-wide leading-none mb-0.5 ${isToxic ? "text-[#F43F5E]" : "text-[#009C4D]"}`}>
                 MBank AI · {persona.name}
               </p>
-              <p className="text-[14px] font-semibold text-[#111111] leading-tight truncate">
+              <motion.p
+                initial={{ opacity: 0, x: -6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.22 }}
+                className="text-[14px] font-semibold text-[#111111] leading-tight"
+              >
                 {pending.pattern}
-              </p>
+              </motion.p>
             </div>
           </div>
 
           {/* ── AI reply ── */}
-          <p className="text-[13px] text-[#333333] leading-relaxed mb-3">
+          <motion.p
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28, type: "spring", damping: 24, stiffness: 280 }}
+            className="text-[13px] text-[#333333] leading-relaxed mb-3"
+          >
             {reply}
-          </p>
+          </motion.p>
 
           {/* ── Amount chip ── */}
-          <div
-            className="flex items-center gap-2 rounded-[12px] px-3 py-2.5 mb-4"
-            style={{ background: "#F5F5F5" }}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.34, type: "spring", damping: 22, stiffness: 280 }}
+            className="flex items-center gap-2.5 rounded-[14px] px-3 py-2.5 mb-4"
+            style={{
+              background: "#F5F5F5",
+              border: "1px solid rgba(0,0,0,0.05)",
+            }}
           >
             <div
-              className="w-8 h-8 rounded-[8px] flex items-center justify-center text-[13px] font-bold flex-shrink-0"
-              style={{ background: "#EBEBEB", color: "#555" }}
+              className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[14px] font-bold flex-shrink-0"
+              style={{ background: "#E8E8E8", color: "#666" }}
             >
               {pending.merchant.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-medium text-[#111111] truncate">{pending.merchant}</p>
+              <p className="text-[11px] text-[#999]">Ожидает подтверждения</p>
             </div>
             <p className="text-[18px] font-bold text-[#111111] flex-shrink-0">
               {formatSomCompact(pending.amount)}
             </p>
-          </div>
+          </motion.div>
 
           {/* ── Action buttons ── */}
-          <div className="flex gap-2 mb-3">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.38, type: "spring", damping: 22, stiffness: 280 }}
+            className="flex gap-2 mb-3"
+          >
             {/* Ghost — allow transaction */}
-            <button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
               onClick={onConfirm}
-              className="flex-1 h-11 rounded-xl text-[13px] font-semibold text-[#555555] active:opacity-70 transition-opacity"
+              className="flex-1 h-12 rounded-[14px] text-[13px] font-semibold text-[#555555]"
               style={{
                 background: "transparent",
-                border: "1px solid #E0E0E0",
+                border: "1.5px solid #E0E0E0",
               }}
             >
               Всё равно купить
-            </button>
+            </motion.button>
 
             {/* Primary — cancel → save */}
-            <button
+            <motion.button
+              whileTap={{ scale: 0.97 }}
               onClick={onCancel}
-              className="flex-1 h-11 rounded-xl text-[13px] font-semibold text-white active:opacity-90 transition-opacity"
+              className="flex-1 h-12 rounded-[14px] text-[13px] font-semibold text-white"
               style={{
                 background: "linear-gradient(135deg, #00B85A 0%, #008D3F 100%)",
-                boxShadow: "0 4px 16px rgba(0,156,77,0.30)",
+                boxShadow: "0 4px 18px rgba(0,156,77,0.35)",
               }}
             >
               Отмена — в копилку
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
 
           {/* ── Deposit footnote ── */}
-          <p className="text-[11px] text-[#999999] text-center leading-snug">
-            Эти {formatSomCompact(pending.amount)} уедут на твой депозит 8% годовых
+          <p className="text-[11px] text-[#AAAAAA] text-center leading-snug">
+            Эти {formatSomCompact(pending.amount)} уедут на депозит · 8% годовых
           </p>
         </div>
       </motion.div>

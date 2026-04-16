@@ -228,16 +228,27 @@ export const upcomingBills: UpcomingBill[] = [
   { id: "b-3", name: "MegaCom",          amount: 650,  dueISO: "2026-04-10", status: "Просрочено", icon: "📡" },
 ];
 
+export type AutopilotHistoryReason = "rounding" | "blocked" | "found" | "frozen";
+
 export type AutopilotHistoryEntry = {
-  reason: "rounding" | "blocked" | "found";
+  reason: AutopilotHistoryReason;
   amount: number;
   dateISO: string;
   note: string;
 };
 
+export const SOURCE_META: Record<AutopilotHistoryReason, { label: string; color: string }> = {
+  rounding: { label: "Округление сдачи",       color: "#FABF00" },
+  blocked:  { label: "Отменённые покупки",      color: "#E53E3E" },
+  found:    { label: "Найденная экономия",      color: "#3B82F6" },
+  frozen:   { label: "Замороженные подписки",   color: "#06B6D4" },
+};
+
 export const autopilotSavings = {
   total: 84500,
   apr: 8,
+  depositStartISO: "2025-10-01",
+  interestEarned: 3380,
   goal: {
     name: "На машину",
     target: 500000,
