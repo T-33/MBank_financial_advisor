@@ -6,14 +6,15 @@ import CashflowWarningCard from "./cards/CashflowWarningCard";
 import SpendingBreakdownCard from "./cards/SpendingBreakdownCard";
 import SubscriptionFreezeCard from "./cards/SubscriptionFreezeCard";
 import AutopilotJarCard from "./cards/AutopilotJarCard";
+import MMarketCrossSellCard from "./cards/MMarketCrossSellCard";
 import { useAutopilot } from "@/lib/store";
 
 type Props = { message: UIMessage };
 
 // Syncs an AI-driven freeze tool call into the global store
 function FreezeSync({ id }: { id: string }) {
-  const { freezeSubscription } = useAutopilot();
-  useEffect(() => { freezeSubscription(id); }, [id, freezeSubscription]);
+  const { addFrozenSub } = useAutopilot();
+  useEffect(() => { addFrozenSub(id); }, [id, addFrozenSub]);
   return null;
 }
 
@@ -101,6 +102,10 @@ export default function MessageBubble({ message }: Props) {
           );
         }
 
+        if (toolName === "manage_subscriptions" && (output.action as string) === "freeze" && output.success && output.id) {
+          return <FreezeSync key={i} id={output.id as string} />;
+        }
+
         if (toolName === "manage_subscriptions" && (output.action as string) === "list") {
           return (
             <div key={i}>
@@ -123,6 +128,19 @@ export default function MessageBubble({ message }: Props) {
                 progressPct={output.progressPct as number}
                 sources={output.sources as Record<string, number>}
                 recentHistory={output.recentHistory as { reason: string; amount: number; dateISO: string; note: string }[]}
+              />
+            </div>
+          );
+        }
+
+        if (toolName === "find_in_mbank_catalog" && output.found) {
+          return (
+            <div key={i}>
+              <MMarketCrossSellCard
+                paidPrice={output.paidPrice as number}
+                product={output.product as { name: string; price: number; imageUrl: string; category: string; rating: number; reviewCount: number; freeDelivery: boolean }}
+                savings={output.savings as number}
+                savingsPercent={output.savingsPercent as number}
               />
             </div>
           );

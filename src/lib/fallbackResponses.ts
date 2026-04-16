@@ -9,6 +9,7 @@ import {
   upcomingBills,
   transactions,
   subscriptions,
+  mmarketCatalog,
   type PersonaId,
 } from "./mockData";
 import { serverFrozenSubIds } from "./subscriptionState";
@@ -46,6 +47,15 @@ export function detectFallbackTool(message: string): string {
   )
     return "analyze_spending";
   if (m.includes("подписк")) return "manage_subscriptions";
+  if (
+    m.includes("купил") ||
+    m.includes("заказал") ||
+    m.includes("потратил на") ||
+    m.includes("орто-сай") ||
+    m.includes("базар") ||
+    m.includes("магазин")
+  )
+    return "find_in_mbank_catalog";
   // default — cash flow is the most "wow" card
   return "predict_cashflow";
 }
@@ -135,6 +145,28 @@ export function getFallbackOutput(toolName: string): Record<string, unknown> {
         count: subscriptions.length,
       };
 
+    case "find_in_mbank_catalog": {
+      const product = mmarketCatalog[0]; // LED lamp — default fallback match
+      const paidPrice = 500;
+      return {
+        found: true,
+        query: "лампа",
+        paidPrice,
+        product: {
+          name: product.name,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          category: product.category,
+          rating: product.rating,
+          reviewCount: product.reviewCount,
+          freeDelivery: product.freeDelivery,
+        },
+        savings: paidPrice - product.price,
+        savingsPercent: Math.round(((paidPrice - product.price) / paidPrice) * 100),
+        deepLink: "mbank://mmarket/product/" + product.id,
+      };
+    }
+
     default:
       return {};
   }
@@ -165,6 +197,10 @@ export function getFallbackText(
     manage_subscriptions: [
       "Вот твои активные подписки — есть что заморозить:",
       "Подписки плодятся как кролики. Хотя бы одну заморозь — буду горд:",
+    ],
+    find_in_mbank_catalog: [
+      "Нашла похожий товар в MMarket — и дешевле! В следующий раз загляни туда сначала:",
+      "500 С за лампу? Та же самая в MMarket стоит 350 С и доставка бесплатная. В следующий раз спроси меня ДО того, как достать кошелек:",
     ],
   };
 

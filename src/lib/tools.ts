@@ -11,6 +11,7 @@ import {
   upcomingBills,
   subscriptions,
   autopilotSavings,
+  mmarketCatalog,
 } from "./mockData";
 import { serverFrozenSubIds } from "./subscriptionState";
 
@@ -194,6 +195,76 @@ export const showAutopilotSummary = tool({
   },
 });
 
+// ─── 5. find_in_mbank_catalog ────────────────────────────────────────────────
+
+export const findInMbankCatalog = tool({
+  description:
+    "Ищет аналог товара в каталоге MMarket (маркетплейс MBank). " +
+    "Вызывай когда пользователь упоминает покупку вне MBank — покажет дешевле ли в MMarket.",
+  inputSchema: z.object({
+    query: z.string().describe("Название товара, который пользователь купил (напр. 'лампа', 'наушники')"),
+    paidPrice: z.number().describe("Цена, которую пользователь заплатил (в сомах)"),
+  }),
+  execute: async ({ query, paidPrice }) => {
+    const q = query.toLowerCase();
+    const words = q.split(/\s+/);
+
+    // Score each product by keyword overlap
+    let bestMatch = mmarketCatalog[0];
+    let bestScore = 0;
+
+    for (const product of mmarketCatalog) {
+      let score = 0;
+      for (const word of words) {
+        if (word.length < 2) continue;
+        for (const kw of product.keywords) {
+          if (kw.includes(word) || word.includes(kw)) {
+            score += 1;
+          }
+        }
+        if (product.name.toLowerCase().includes(word)) {
+          score += 0.5;
+        }
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = product;
+      }
+    }
+
+    // No match at all — return not found
+    if (bestScore === 0) {
+      return {
+        found: false,
+        query,
+        paidPrice,
+        message: "Не нашёл похожий товар в MMarket.",
+      };
+    }
+
+    const savings = paidPrice - bestMatch.price;
+    const savingsPercent = paidPrice > 0 ? Math.round((savings / paidPrice) * 100) : 0;
+
+    return {
+      found: true,
+      query,
+      paidPrice,
+      product: {
+        name: bestMatch.name,
+        price: bestMatch.price,
+        imageUrl: bestMatch.imageUrl,
+        category: bestMatch.category,
+        rating: bestMatch.rating,
+        reviewCount: bestMatch.reviewCount,
+        freeDelivery: bestMatch.freeDelivery,
+      },
+      savings,
+      savingsPercent,
+      deepLink: "mbank://mmarket/product/" + bestMatch.id,
+    };
+  },
+});
+
 // ─── Named map (used in route.ts) ─────────────────────────────────────────────
 
 export const tools = {
@@ -201,4 +272,5 @@ export const tools = {
   predict_cashflow: predictCashflow,
   manage_subscriptions: manageSubscriptions,
   show_autopilot_summary: showAutopilotSummary,
+  find_in_mbank_catalog: findInMbankCatalog,
 } as const;

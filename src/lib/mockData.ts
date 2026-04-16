@@ -336,6 +336,111 @@ export const pendingTransactions: PendingTransaction[] = [
   },
 ];
 
+// ── MMarket catalog — for cross-sell tool (find_in_mbank_catalog) ─────────────
+
+export type MMarketProduct = {
+  id: string;
+  name: string;
+  keywords: string[];
+  category: string;
+  price: number;
+  imageUrl: string;
+  rating: number;
+  reviewCount: number;
+  freeDelivery: boolean;
+};
+
+export const mmarketCatalog: MMarketProduct[] = [
+  {
+    id: "mm-1",
+    name: "Настольная LED лампа с регулировкой яркости",
+    keywords: ["лампа", "светильник", "led", "настольная"],
+    category: "Дом и сад",
+    price: 350,
+    imageUrl: "/lamp.webp",
+    rating: 4.7,
+    reviewCount: 234,
+    freeDelivery: true,
+  },
+  {
+    id: "mm-2",
+    name: "Беспроводные наушники TWS Pro",
+    keywords: ["наушники", "airpods", "tws", "беспроводные", "блютуз"],
+    category: "Электроника",
+    price: 1200,
+    imageUrl: "https://placehold.co/120x120/F5F5F5/333?text=TWS",
+    rating: 4.5,
+    reviewCount: 512,
+    freeDelivery: true,
+  },
+  {
+    id: "mm-3",
+    name: "Чехол для iPhone 15 силиконовый",
+    keywords: ["чехол", "кейс", "iphone", "телефон", "айфон"],
+    category: "Аксессуары",
+    price: 280,
+    imageUrl: "https://placehold.co/120x120/F5F5F5/333?text=Case",
+    rating: 4.3,
+    reviewCount: 189,
+    freeDelivery: false,
+  },
+  {
+    id: "mm-4",
+    name: "Кроссовки мужские спортивные",
+    keywords: ["кроссовки", "обувь", "кеды", "спортивные"],
+    category: "Одежда и обувь",
+    price: 2800,
+    imageUrl: "https://placehold.co/120x120/F5F5F5/333?text=Shoes",
+    rating: 4.6,
+    reviewCount: 87,
+    freeDelivery: true,
+  },
+  {
+    id: "mm-5",
+    name: "Рюкзак городской 25л",
+    keywords: ["рюкзак", "сумка", "портфель"],
+    category: "Аксессуары",
+    price: 1500,
+    imageUrl: "https://placehold.co/120x120/F5F5F5/333?text=Bag",
+    rating: 4.4,
+    reviewCount: 156,
+    freeDelivery: true,
+  },
+  {
+    id: "mm-6",
+    name: "Зарядка USB-C быстрая 65W",
+    keywords: ["зарядка", "зарядное", "charger", "usb", "блок питания"],
+    category: "Электроника",
+    price: 650,
+    imageUrl: "https://placehold.co/120x120/F5F5F5/333?text=Charger",
+    rating: 4.8,
+    reviewCount: 321,
+    freeDelivery: false,
+  },
+  {
+    id: "mm-7",
+    name: "Футболка хлопковая базовая",
+    keywords: ["футболка", "майка", "одежда"],
+    category: "Одежда и обувь",
+    price: 450,
+    imageUrl: "https://placehold.co/120x120/F5F5F5/333?text=Shirt",
+    rating: 4.2,
+    reviewCount: 98,
+    freeDelivery: false,
+  },
+  {
+    id: "mm-8",
+    name: "Электрический чайник 1.7л",
+    keywords: ["чайник", "электрочайник", "кухня"],
+    category: "Дом и сад",
+    price: 890,
+    imageUrl: "https://placehold.co/120x120/F5F5F5/333?text=Kettle",
+    rating: 4.6,
+    reviewCount: 445,
+    freeDelivery: true,
+  },
+];
+
 // Persona definitions — passed into the LLM system prompt.
 export type PersonaId = "caring" | "toxic";
 
@@ -356,7 +461,7 @@ export const personas: Persona[] = [
     emoji: "🤝",
     accent: "from-emerald-500 to-emerald-700",
     systemPrompt:
-      "Ты — вежливый и эмпатичный финансовый ассистент MBank. Общайся на русском, коротко и по делу. Давай конкретные цифры в сомах (С). Никогда не осуждай пользователя. Если видишь риск кассового разрыва — спокойно предупреди и предложи одно конкретное действие.\n\nВАЖНО: У тебя есть инструменты — ВСЕГДА вызывай их, когда пользователь спрашивает о финансах. Никогда не отвечай из головы, если есть подходящий инструмент:\n- вопросы о расходах/тратах → analyze_spending\n- вопросы о балансе/зарплате/счетах → predict_cashflow\n- вопросы о подписках → manage_subscriptions\n- вопросы о копилке/сбережениях → show_autopilot_summary",
+      "Ты — вежливый и эмпатичный финансовый ассистент MBank. Общайся на русском, коротко и по делу. Давай конкретные цифры в сомах (С). Никогда не осуждай пользователя. Если видишь риск кассового разрыва — спокойно предупреди и предложи одно конкретное действие.\n\nВАЖНО: У тебя есть инструменты — ВСЕГДА вызывай их, когда пользователь спрашивает о финансах. Никогда не отвечай из головы, если есть подходящий инструмент:\n- вопросы о расходах/тратах → analyze_spending\n- вопросы о балансе/зарплате/счетах → predict_cashflow\n- вопросы о подписках → manage_subscriptions\n- вопросы о копилке/сбережениях → show_autopilot_summary\n- пользователь упоминает покупку вне MBank (купил, заказал, потратил на базаре/магазине) → find_in_mbank_catalog(query, paidPrice) — найди аналог дешевле в MMarket",
   },
   {
     id: "toxic",
@@ -365,6 +470,6 @@ export const personas: Persona[] = [
     emoji: "😈",
     accent: "from-rose-500 to-fuchsia-700",
     systemPrompt:
-      "Ты — токсичный друг-финансист из MBank. Общайся на русском, коротко, с сарказмом и дружеским подколом. Можешь прожаривать пользователя за кофе, такси и подписки, но ВСЕГДА давай корректный финансовый совет с конкретными цифрами в сомах (С). ЗАПРЕЩЕНО шутить над: аптеками, больницами, медициной, похоронами, зарплатой ниже среднего. Пользователь сам выбрал этот режим — не извиняйся за тон.\n\nВАЖНО: ВСЕГДА вызывай инструменты — никогда не выдумывай цифры:\n- вопросы о расходах/тратах → analyze_spending\n- вопросы о балансе/зарплате/счетах → predict_cashflow\n- вопросы о подписках → manage_subscriptions\n- вопросы о копилке/сбережениях → show_autopilot_summary",
+      "Ты — токсичный друг-финансист из MBank. Общайся на русском, коротко, с сарказмом и дружеским подколом. Можешь прожаривать пользователя за кофе, такси и подписки, но ВСЕГДА давай корректный финансовый совет с конкретными цифрами в сомах (С). ЗАПРЕЩЕНО шутить над: аптеками, больницами, медициной, похоронами, зарплатой ниже среднего. Пользователь сам выбрал этот режим — не извиняйся за тон.\n\nВАЖНО: ВСЕГДА вызывай инструменты — никогда не выдумывай цифры:\n- вопросы о расходах/тратах → analyze_spending\n- вопросы о балансе/зарплате/счетах → predict_cashflow\n- вопросы о подписках → manage_subscriptions\n- вопросы о копилке/сбережениях → show_autopilot_summary\n- пользователь упоминает покупку вне MBank (купил, заказал, потратил на базаре/магазине) → find_in_mbank_catalog(query, paidPrice) — найди аналог дешевле в MMarket",
   },
 ];
