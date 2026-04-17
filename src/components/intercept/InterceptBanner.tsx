@@ -18,9 +18,15 @@ type Props = {
   onConfirm: () => void;
 };
 
+const PERSONA_LABEL_COLOR: Record<PersonaId, string> = {
+  caring: "text-[#009C4D]",
+  toxic: "text-[#F43F5E]",
+  motivator: "text-[#F97316]",
+};
+
 export default function InterceptBanner({ pending, personaId, onCancel, onConfirm }: Props) {
   const persona = personas.find((p) => p.id === personaId) ?? personas[0];
-  const isToxic = personaId === "toxic";
+  const labelColor = PERSONA_LABEL_COLOR[personaId] ?? PERSONA_LABEL_COLOR.caring;
 
   const [reply] = useState<string>(() => {
     const arr = pending.intercept[personaId];
@@ -67,7 +73,7 @@ export default function InterceptBanner({ pending, personaId, onCancel, onConfir
             </motion.div>
 
             <div className="flex-1 min-w-0">
-              <p className={`text-[11px] font-semibold uppercase tracking-wide leading-none mb-0.5 ${isToxic ? "text-[#F43F5E]" : "text-[#009C4D]"}`}>
+              <p className={`text-[11px] font-semibold uppercase tracking-wide leading-none mb-0.5 ${labelColor}`}>
                 MBank AI · {persona.name}
               </p>
               <motion.p

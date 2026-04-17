@@ -196,6 +196,7 @@ function PersonaPicker({ onPick }: { onPick: (id: PersonaId) => void }) {
 
 const BASE_CHIPS = ["Что в копилке?", "Хватит до зарплаты?", "Куда уходят деньги?", "Покажи подписки", "Покажи машину"];
 const TOXIC_EXTRA = "Прожарь мои траты 🔥";
+const MOTIVATOR_EXTRA = "Заряди меня ⚡";
 
 function ChatBody({ personaId }: { personaId: PersonaId }) {
   const [input, setInput] = useState("");
@@ -238,7 +239,12 @@ function ChatBody({ personaId }: { personaId: PersonaId }) {
 
   const hasUserMessage = visibleMessages.some((m) => m.role === "user");
   const showChips = !hasUserMessage && !isStreaming;
-  const chips = personaId === "toxic" ? [...BASE_CHIPS, TOXIC_EXTRA] : BASE_CHIPS;
+  const chips =
+    personaId === "toxic"
+      ? [...BASE_CHIPS, TOXIC_EXTRA]
+      : personaId === "motivator"
+        ? [...BASE_CHIPS, MOTIVATOR_EXTRA]
+        : BASE_CHIPS;
 
   return (
     <>

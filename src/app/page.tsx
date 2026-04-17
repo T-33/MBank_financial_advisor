@@ -15,6 +15,7 @@ import {
   marchAnalysis,
   personas,
   type PendingTransaction,
+  type PersonaId,
 } from "@/lib/mockData";
 import { formatSom, formatSomCompact, daysUntil } from "@/lib/format";
 import AutopilotWidget from "@/components/home/AutopilotWidget";
@@ -28,6 +29,39 @@ const primaryCard = cards[0];
 const daysToSalary = daysUntil(user.salary.nextPayISO);
 const billsTotal = upcomingBills.reduce((sum, b) => sum + b.amount, 0);
 const recentTxs = transactions.slice(0, 4);
+
+// ── Per-persona FAB styling ────────────────────────────────────────────────
+type FabStyle = {
+  pulse: string;
+  gradient: string;
+  shadow: string;
+  accent: string;
+  label: string;
+};
+
+const FAB_STYLES: Record<PersonaId, FabStyle> = {
+  caring: {
+    pulse: "rgba(0,184,90,0.38)",
+    gradient: "linear-gradient(135deg, #00B85A 0%, #008D3F 100%)",
+    shadow: "0 8px 24px rgba(0,156,77,0.45), 0 0 0 4px #ffffff",
+    accent: "#009C4D",
+    label: "AI",
+  },
+  toxic: {
+    pulse: "rgba(244,63,94,0.38)",
+    gradient: "linear-gradient(135deg, #F43F5E 0%, #A21CAF 100%)",
+    shadow: "0 8px 24px rgba(244,63,94,0.45), 0 0 0 4px #ffffff",
+    accent: "#F43F5E",
+    label: "Токсичный",
+  },
+  motivator: {
+    pulse: "rgba(249,115,22,0.38)",
+    gradient: "linear-gradient(135deg, #FBBF24 0%, #F97316 100%)",
+    shadow: "0 8px 24px rgba(249,115,22,0.45), 0 0 0 4px #ffffff",
+    accent: "#F97316",
+    label: "Мотиватор",
+  },
+};
 
 // ── PhoneShell — contains all phone UI, must be inside AutopilotProvider ───
 function PhoneShell() {
@@ -51,6 +85,7 @@ function PhoneShell() {
   }, [activePersona]);
 
   const activePersonaObj = personas.find((p) => p.id === activePersona) ?? personas[0];
+  const fab = FAB_STYLES[activePersona] ?? FAB_STYLES.caring;
 
   const handleCancel = () => {
     if (activePending) {
@@ -400,11 +435,7 @@ function PhoneShell() {
             {/* Pulse ring */}
             <span
               className="absolute inset-0 rounded-full pointer-events-none fab-pulse-ring"
-              style={{
-                background: activePersona === "toxic"
-                  ? "rgba(244,63,94,0.38)"
-                  : "rgba(0,184,90,0.38)",
-              }}
+              style={{ background: fab.pulse }}
             />
             <motion.button
               onClick={handleOpenChat}
@@ -412,12 +443,8 @@ function PhoneShell() {
               whileTap={{ scale: 0.91 }}
               className="w-[60px] h-[60px] rounded-full flex items-center justify-center relative z-10"
               style={{
-                background: activePersona === "toxic"
-                  ? "linear-gradient(135deg, #F43F5E 0%, #A21CAF 100%)"
-                  : "linear-gradient(135deg, #00B85A 0%, #008D3F 100%)",
-                boxShadow: activePersona === "toxic"
-                  ? "0 8px 24px rgba(244,63,94,0.45), 0 0 0 4px #ffffff"
-                  : "0 8px 24px rgba(0,156,77,0.45), 0 0 0 4px #ffffff",
+                background: fab.gradient,
+                boxShadow: fab.shadow,
                 transition: "background 0.4s ease, box-shadow 0.4s ease",
               }}
             >
@@ -432,6 +459,17 @@ function PhoneShell() {
                     className="text-[22px] leading-none select-none"
                   >
                     😈
+                  </motion.span>
+                ) : activePersona === "motivator" ? (
+                  <motion.span
+                    key="motivator"
+                    initial={{ scale: 0.5, opacity: 0, rotate: -20 }}
+                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                    transition={{ type: "spring", damping: 18, stiffness: 300 }}
+                    className="text-[22px] leading-none select-none"
+                  >
+                    💪
                   </motion.span>
                 ) : (
                   <motion.div
@@ -457,9 +495,9 @@ function PhoneShell() {
             initial={{ opacity: 0, y: 3 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-[9px] font-semibold leading-none"
-            style={{ color: activePersona === "toxic" ? "#F43F5E" : "#009C4D" }}
+            style={{ color: fab.accent }}
           >
-            {activePersona === "toxic" ? "Токсичный" : "AI"}
+            {fab.label}
           </motion.span>
         </div>
 
@@ -513,7 +551,7 @@ function PhoneShell() {
               </p>
             </div>
             <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{
-              background: activePersona === "toxic" ? "#F43F5E" : "#009C4D",
+              background: fab.accent,
             }} />
           </motion.div>
         )}
