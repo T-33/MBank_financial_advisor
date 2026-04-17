@@ -40,6 +40,7 @@ export default function MerchantLogo({ name, size = 40, radius = 10 }: Props) {
       }}
     >
       {!showInitial ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={`/logos/${file}`}
           alt={name}

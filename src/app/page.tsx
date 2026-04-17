@@ -17,7 +17,7 @@ import {
   type PendingTransaction,
   type PersonaId,
 } from "@/lib/mockData";
-import { formatSom, formatSomCompact, daysUntil } from "@/lib/format";
+import { formatSom, formatSomCompact, daysUntil, TODAY_ISO } from "@/lib/format";
 import AutopilotWidget from "@/components/home/AutopilotWidget";
 import MerchantLogo from "@/components/home/MerchantLogo";
 import InterceptBanner from "@/components/intercept/InterceptBanner";
@@ -92,7 +92,7 @@ function PhoneShell() {
       addToAutopilot(activePending.amount, {
         reason: "blocked",
         amount: activePending.amount,
-        dateISO: "2026-04-14",
+        dateISO: TODAY_ISO,
         note: `${activePending.merchant} — отменил`,
       });
     }

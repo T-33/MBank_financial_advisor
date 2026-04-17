@@ -64,7 +64,7 @@ function buildFallbackResponse(
   const validPersona: PersonaId =
     personaId === "toxic" || personaId === "motivator" ? personaId : "caring";
   const reply = getFallbackText(toolName, validPersona);
-  const callId = "fallback-1";
+  const callId = `fallback-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
   const stream = createUIMessageStream({
     execute: ({ writer }) => {

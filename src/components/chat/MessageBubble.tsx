@@ -9,8 +9,24 @@ import SubscriptionFreezeCard from "./cards/SubscriptionFreezeCard";
 import AutopilotJarCard from "./cards/AutopilotJarCard";
 import MMarketCrossSellCard from "./cards/MMarketCrossSellCard";
 import { useAutopilot } from "@/lib/store";
+import type { PersonaId } from "@/lib/mockData";
 
 type Props = { message: UIMessage };
+
+const USER_BUBBLE_BG: Record<PersonaId, { gradient: string; shadow: string }> = {
+  caring: {
+    gradient: "linear-gradient(135deg, #00B85A 0%, #008D3F 100%)",
+    shadow: "0 2px 12px rgba(0,156,77,0.28)",
+  },
+  toxic: {
+    gradient: "linear-gradient(135deg, #F43F5E 0%, #A21CAF 100%)",
+    shadow: "0 2px 12px rgba(244,63,94,0.28)",
+  },
+  motivator: {
+    gradient: "linear-gradient(135deg, #FBBF24 0%, #F97316 100%)",
+    shadow: "0 2px 12px rgba(249,115,22,0.30)",
+  },
+};
 
 // Syncs an AI-driven freeze tool call into the global store + deposit history
 function FreezeSync({ id }: { id: string }) {
@@ -32,6 +48,8 @@ const msgSpring = { type: "spring" as const, damping: 26, stiffness: 340, mass: 
 
 export default function MessageBubble({ message }: Props) {
   const isUser = message.role === "user";
+  const { personaId } = useAutopilot();
+  const bubbleStyle = USER_BUBBLE_BG[personaId] ?? USER_BUBBLE_BG.caring;
 
   if (isUser) {
     const textPart = message.parts.find((p) => p.type === "text");
@@ -47,8 +65,8 @@ export default function MessageBubble({ message }: Props) {
         <div
           className="text-white rounded-[18px] rounded-br-[6px] px-4 py-2.5 max-w-[80%] text-[14px] leading-snug"
           style={{
-            background: "linear-gradient(135deg, #00B85A 0%, #008D3F 100%)",
-            boxShadow: "0 2px 12px rgba(0,156,77,0.28)",
+            background: bubbleStyle.gradient,
+            boxShadow: bubbleStyle.shadow,
           }}
         >
           {text}

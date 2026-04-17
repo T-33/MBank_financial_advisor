@@ -7,6 +7,14 @@ import { useAutopilot } from "@/lib/store";
 type Sub = { id: string; name: string; amount: number; nextCharge: string; category: string; frozen?: boolean };
 type Props = { subscriptions: Sub[]; totalMonthly: number; count: number };
 
+function pluralSubs(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return "подписка заморожена";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "подписки заморожено";
+  return "подписок заморожено";
+}
+
 const SUB_ICONS: Record<string, React.ElementType> = {
   "Spotify Premium": Music,
   "Netflix": Tv,
@@ -95,7 +103,7 @@ export default function SubscriptionFreezeCard({ subscriptions, totalMonthly }: 
 
       {frozenCount > 0 && (
         <p className="text-[11px] text-emerald-600 font-medium mt-3 pt-2 border-t border-slate-100">
-          ✓ {frozenCount} подписок заморожено · экономия {formatSomCompact(savedMonthly)}/мес
+          ✓ {frozenCount} {pluralSubs(frozenCount)} · экономия {formatSomCompact(savedMonthly)}/мес
         </p>
       )}
     </div>

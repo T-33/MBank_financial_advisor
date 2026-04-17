@@ -15,8 +15,3 @@ if (!globalThis.__frozenSubIds) {
 }
 
 export const serverFrozenSubIds: Set<string> = globalThis.__frozenSubIds;
-
-export function syncFrozenIds(ids: string[]): void {
-  serverFrozenSubIds.clear();
-  for (const id of ids) serverFrozenSubIds.add(id);
-}

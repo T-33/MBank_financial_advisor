@@ -1,7 +1,7 @@
 "use client";
 
-// DevTriggerButton — dev-only floating button that fires a random pending transaction.
-// Returns null in production. Place inside the phone shell.
+// DevTriggerButton — floating button that fires a random pending transaction.
+// Kept enabled in prod builds so the hackathon demo works after `next build`.
 
 import { pendingTransactions, type PendingTransaction } from "@/lib/mockData";
 
@@ -10,8 +10,6 @@ type Props = {
 };
 
 export default function DevTriggerButton({ onTrigger }: Props) {
-  if (process.env.NODE_ENV !== "development") return null;
-
   const handleClick = () => {
     const random = pendingTransactions[Math.floor(Math.random() * pendingTransactions.length)];
     onTrigger(random);

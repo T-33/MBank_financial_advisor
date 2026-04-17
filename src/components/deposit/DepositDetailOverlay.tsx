@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Coins, ShieldOff, TrendingDown, Snowflake, ChevronLeft, TrendingUp, Sparkles, CircleDollarSign, Ban } from "lucide-react";
 import { autopilotSavings, SOURCE_META, type AutopilotHistoryReason } from "@/lib/mockData";
-import { formatSomCompact, formatDate } from "@/lib/format";
+import { formatSomCompact, formatDate, TODAY_ISO } from "@/lib/format";
 import { useAutopilot } from "@/lib/store";
 
 type Props = { open: boolean; onClose: () => void };
@@ -53,7 +53,7 @@ export default function DepositDetailOverlay({ open, onClose }: Props) {
 
   // Months since deposit start
   const startDate = new Date(depositStartISO);
-  const now = new Date("2026-04-14");
+  const now = new Date(TODAY_ISO);
   const monthsActive = Math.round((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
   const monthlyInterest = monthsActive > 0 ? Math.round(interestEarned / monthsActive) : 0;
 

@@ -4,6 +4,7 @@
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 import { autopilotSavings, subscriptions, type PersonaId, type AutopilotHistoryReason } from "./mockData";
+import { TODAY_ISO } from "./format";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -86,7 +87,7 @@ export function AutopilotProvider({ children }: { children: ReactNode }) {
             id: `dyn-${++entrySeq}`,
             reason: "frozen",
             amount: sub.amount,
-            dateISO: "2026-04-14",
+            dateISO: TODAY_ISO,
             note: `${sub.name} — заморозил`,
             timestamp: Date.now(),
           },

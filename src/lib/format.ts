@@ -1,5 +1,8 @@
 // MBank formatting utilities
 
+// Single source of truth for the "today" date — all mock data is relative to it.
+export const TODAY_ISO = "2026-04-14";
+
 /**
  * formatSom(3409.53) → "3 409,53 С"
  * Uses non-breaking space as thousands separator, comma as decimal, " С" suffix.
@@ -37,7 +40,7 @@ export function formatDate(iso: string): string {
  * daysUntil("2026-04-20") → 6  (from today 2026-04-14)
  */
 export function daysUntil(isoDate: string): number {
-  const today = new Date("2026-04-14");
+  const today = new Date(TODAY_ISO);
   const target = new Date(isoDate);
   return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }

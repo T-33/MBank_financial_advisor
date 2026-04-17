@@ -72,7 +72,7 @@ export function getFallbackOutput(toolName: string): Record<string, unknown> {
           acc[e.reason] = (acc[e.reason] ?? 0) + e.amount;
           return acc;
         },
-        { rounding: 0, blocked: 0, found: 0 } as Record<string, number>
+        { rounding: 0, blocked: 0, found: 0, frozen: 0 } as Record<string, number>
       );
       return {
         total,

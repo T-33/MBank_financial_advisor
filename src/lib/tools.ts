@@ -14,13 +14,12 @@ import {
   mmarketCatalog,
 } from "./mockData";
 import { serverFrozenSubIds } from "./subscriptionState";
+import { TODAY_ISO } from "./format";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-const TODAY = "2026-04-14";
-
 function daysUntil(isoDate: string): number {
-  const today = new Date(TODAY);
+  const today = new Date(TODAY_ISO);
   const target = new Date(isoDate);
   return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
@@ -180,7 +179,7 @@ export const showAutopilotSummary = tool({
         acc[entry.reason] = (acc[entry.reason] ?? 0) + entry.amount;
         return acc;
       },
-      { rounding: 0, blocked: 0, found: 0 } as Record<string, number>
+      { rounding: 0, blocked: 0, found: 0, frozen: 0 } as Record<string, number>
     );
 
     return {

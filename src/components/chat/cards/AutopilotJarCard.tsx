@@ -1,5 +1,5 @@
 "use client";
-import { PiggyBank, Coins, ShieldOff, TrendingDown } from "lucide-react";
+import { PiggyBank, Coins, ShieldOff, TrendingDown, Snowflake } from "lucide-react";
 import { formatSomCompact } from "@/lib/format";
 
 type History = { reason: string; amount: number; dateISO: string; note: string };
@@ -46,18 +46,37 @@ export default function AutopilotJarCard({ total, apr, goal, progressPct, source
 
       {/* Sources */}
       <div className="space-y-1.5 mb-3">
-        <SourceRow icon={<Coins className="w-3.5 h-3.5 text-amber-500" />}    label="Округление сдачи"   value={sources.rounding ?? 0} />
-        <SourceRow icon={<ShieldOff className="w-3.5 h-3.5 text-rose-500" />} label="Заблокированные"    value={sources.blocked  ?? 0} />
-        <SourceRow icon={<TrendingDown className="w-3.5 h-3.5 text-blue-500"/>}label="Найденная экономия" value={sources.found    ?? 0} />
+        {(sources.rounding ?? 0) > 0 && (
+          <SourceRow icon={<Coins className="w-3.5 h-3.5 text-amber-500" />} label="Округление сдачи" value={sources.rounding ?? 0} />
+        )}
+        {(sources.blocked ?? 0) > 0 && (
+          <SourceRow icon={<ShieldOff className="w-3.5 h-3.5 text-rose-500" />} label="Заблокированные" value={sources.blocked ?? 0} />
+        )}
+        {(sources.found ?? 0) > 0 && (
+          <SourceRow icon={<TrendingDown className="w-3.5 h-3.5 text-blue-500" />} label="Найденная экономия" value={sources.found ?? 0} />
+        )}
+        {(sources.frozen ?? 0) > 0 && (
+          <SourceRow icon={<Snowflake className="w-3.5 h-3.5 text-cyan-500" />} label="Замороженные подписки" value={sources.frozen ?? 0} />
+        )}
       </div>
 
       {/* Footer */}
       <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-        <span className="text-[11px] text-slate-400">+{formatSomCompact(recentSum)} за 5 операций</span>
+        <span className="text-[11px] text-slate-400">
+          +{formatSomCompact(recentSum)} за {recentHistory.length} {pluralOps(recentHistory.length)}
+        </span>
         <span className="text-[11px] font-medium text-emerald-600">{apr}% годовых</span>
       </div>
     </div>
   );
+}
+
+function pluralOps(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return "операцию";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "операции";
+  return "операций";
 }
 
 function SourceRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {

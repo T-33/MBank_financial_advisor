@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { autopilotSavings } from "@/lib/mockData";
 import { formatSomCompact } from "@/lib/format";
 import { useAutopilot } from "@/lib/store";
